@@ -178,7 +178,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   <header id="topbar">
     <div class="brand">
       <h1>Wirtschaftsimperium</h1>
-      <div class="sub">Prototyp 1.1 · Stand 10.11. (Build B)</div>
+      <div class="sub">Prototyp 1.1 · Stand 10.11. (Build C)</div>
     </div>
     <div class="stats">
       <div class="stat"><span class="lbl">Geld</span><span class="val" id="money">0 €</span></div>
@@ -298,7 +298,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
 <div class="ov" id="wiLogin" hidden>
   <form class="ovcard" autocomplete="on">
     <h1>Wirtschaftsimperium</h1>
-    <div class="sub">Prototyp 1.1 · Stand 10.11. (Build B)</div>
+    <div class="sub">Prototyp 1.1 · Stand 10.11. (Build C)</div>
     <div class="seg"><button type="button" data-m="login" class="on">Anmelden</button><button type="button" data-m="reg">Neu registrieren</button></div>
     <label>Name<input type="text" id="wiName" autocomplete="username" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
     <label>Passwort<input type="password" id="wiPass" autocomplete="current-password" maxlength="64"></label>
@@ -3266,6 +3266,29 @@ window.__game = {
 };
 };
 if (typeof WICloud === 'undefined') window.__wiStartGame(); else WICloud.boot(window.__wiStartGame);
+</script>
+<div id="updBar" hidden style="position:fixed;left:0;right:0;top:0;z-index:99999;background:#e8873a;color:#1a1410;padding:12px 16px;text-align:center;font:600 15px system-ui,sans-serif;cursor:pointer">🔄 Neue Version verfügbar – hier tippen zum Aktualisieren</div>
+<script>
+/* Versions-Check: erkennt, wenn auf dem Server eine neuere Fassung liegt */
+(function () {
+  var BUILD = 'WI-BUILD-2026-11-10-C';
+  var bar = document.getElementById('updBar');
+  bar.addEventListener('click', function () {
+    location.href = location.pathname + '?v=' + Date.now();
+  });
+  function check() {
+    if (!/^https?:/.test(location.protocol)) return;
+    fetch(location.pathname + '?chk=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var m = txt.match(/WI-BUILD-[0-9A-Za-z-]+/);
+        if (m && m[0] !== BUILD) bar.hidden = false;
+      }).catch(function () {});
+  }
+  setTimeout(check, 3000);
+  setInterval(check, 300000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+})();
 </script>
 </body>
 </html>
