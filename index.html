@@ -1,0 +1,3141 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wirtschaftsimperium</title>
+<style>
+:root{
+  --bg:#f5f0e8; --card:#fffdf8; --ink:#2a251f; --mute:#80766a; --line:#e6ddcf;
+  --acc:#c4692a; --acc-ink:#ffffff; --ok:#2f7d5b; --bad:#b3392f; --bar:#eadfce;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#181512; --card:#221e1a; --ink:#f0e9de; --mute:#a1968a; --line:#383129;
+    --acc:#e08a45; --acc-ink:#1b1209; --ok:#5fbf92; --bad:#e2776d; --bar:#35302a;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1320px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+h1{font-size:1.45rem;margin:0;letter-spacing:-.01em}
+h2{font-size:1rem;margin:0 0 10px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.sub{color:var(--mute);font-size:.85rem}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-width:140px}
+.lbl{display:block;color:var(--mute);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.val{font-size:1.35rem;font-weight:650;font-variant-numeric:tabular-nums}
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:18px;align-items:start}
+nav{position:sticky;top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 8px 8px}
+.navgroup + .navgroup{border-top:1px solid var(--line);margin-top:6px}
+.navhead{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;color:var(--mute);font:inherit;
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;font-weight:650;padding:10px 6px 5px;cursor:pointer;text-align:left}
+.navhead:hover{color:var(--ink)}
+.navhead .chev{width:1em;font-size:.8rem}
+.navitem{display:flex;gap:8px;align-items:center;width:100%;border:0;background:none;color:var(--ink);font:inherit;
+  padding:7px 10px;border-radius:9px;cursor:pointer;text-align:left}
+.navitem .ni{width:1.4em;text-align:center}
+.navitem:hover:not(:disabled){background:var(--bar)}
+.navitem.active,.navitem.active:hover{background:var(--acc);color:var(--acc-ink)}
+.navitem:disabled{opacity:.5;cursor:not-allowed}
+.csum{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:baseline;margin:0 0 10px}
+.csum b{font-variant-numeric:tabular-nums}
+.csec{margin-bottom:16px}
+.cshead{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;background:none;border:0;
+  border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-weight:650;padding:6px 2px;cursor:pointer;text-align:left}
+.cshead .small{font-weight:400;color:var(--mute)}
+.crow{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:9px 14px;margin:8px 0 0}
+.crow.off{opacity:.6}
+.crow .cmain{display:flex;gap:10px;align-items:flex-start;min-width:0}
+.crow .ico{font-size:1.4rem;margin-top:2px}
+.crow .cact{display:flex;gap:6px;flex-shrink:0}
+.crow .cup{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.crow .cup .btn{padding:4px 10px;font-size:.82rem}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.75rem;color:var(--mute);margin-left:6px;font-weight:400}
+.xrow{display:grid;grid-template-columns:140px 120px 150px minmax(0,1fr) 300px;gap:6px 14px;align-items:center;margin-top:8px;padding:10px 14px}
+.xrow .xhint{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:6px}
+.xrow .xctl .pricectl{margin:2px 0;flex-wrap:nowrap;white-space:nowrap}
+.xrow svg.spark{width:150px;height:38px;display:block}
+.xrow svg.spark .ln{fill:none;stroke:var(--acc);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.xrow svg.spark .base{stroke:var(--line);stroke-width:1;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
+.xrow svg.spark .minl{stroke:var(--bad);stroke-width:1;stroke-dasharray:2 3;vector-effect:non-scaling-stroke;opacity:.8}
+@media (max-width:1180px){ .xrow{grid-template-columns:1fr 1fr} .xrow .xflow,.xrow .xctl{grid-column:1/-1} }
+.pips{letter-spacing:2px;color:var(--acc);white-space:nowrap}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px;margin-top:8px}
+.qgrid.wide{grid-template-columns:repeat(auto-fill,minmax(400px,1fr))}
+.qgrid .card{margin:0}
+.qcard .row.actions{margin-top:6px}
+.qcard .btn{padding:5px 10px;font-size:.85rem}
+.qdetails{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+@media (max-width:820px){
+  .crow{flex-wrap:wrap}
+}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr}
+  nav{position:static}
+  .navitems{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:4px}
+  .navitem{width:auto;border:1px solid var(--line)}
+}
+.cols{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.title{display:flex;gap:10px;align-items:center}
+.ico{font-size:1.7rem;line-height:1}
+.small{font-size:.82rem}
+.mute{color:var(--mute)}
+.recipe{margin:8px 0 6px}
+.bar{height:8px;background:var(--bar);border-radius:99px;overflow:hidden;margin:6px 0;position:relative}
+.bar u{display:none;position:absolute;top:0;bottom:0;width:2px;background:var(--bg)}
+.bar.marks u{display:block}
+.stars{letter-spacing:.08em;font-size:1.05rem;color:var(--acc)}
+.stars.gold{color:#c9a227}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .12s linear}
+.bar.thin{height:5px;margin:8px 0 2px}
+.bar i.full{background:var(--bad)}
+.actions{margin-top:8px;justify-content:flex-start}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 11px;border-radius:10px;
+  font:inherit;font-size:.9rem;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--acc)}
+.btn.primary{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.price{text-align:right;font-variant-numeric:tabular-nums}
+.price b{font-size:1.15rem}
+.pricectl{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}
+.pricectl .btn{padding:4px 14px;font-size:1.1rem;line-height:1.2}
+.sellrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.qtyin{width:6em;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;text-align:right}
+.btn.warn{border-color:#c0392b;color:#c0392b}
+.pricectl b{font-size:1.2rem;min-width:88px;text-align:center;font-variant-numeric:tabular-nums}
+.up{color:var(--ok)} .down{color:var(--bad)}
+.banner{background:var(--card);border:1px solid var(--acc);border-radius:12px;padding:10px 14px;margin-bottom:14px;
+  display:flex;justify-content:space-between;gap:10px;align-items:center}
+.evbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.evchip{display:flex;gap:8px;align-items:center;border-radius:999px;padding:5px 12px;font-size:.88rem;border:1px solid var(--line,#ddd);background:var(--card);cursor:default}
+.evchip.good{border-color:var(--ok);color:var(--ok)} .evchip.bad{border-color:var(--bad);color:var(--bad)} .evchip.info{border-color:var(--acc);cursor:pointer}
+.evchip b{font-variant-numeric:tabular-nums}
+.ocard .okpi{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:4px}
+.ocard .ostock{font-variant-numeric:tabular-nums}
+footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.lnk{border:0;background:none;color:var(--acc);font:inherit;cursor:pointer;padding:0;text-decoration:underline}
+.ov{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.ov.dim{background:rgba(0,0,0,.55);z-index:60}
+.ovcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px}
+.ovcard h1{font-size:1.4rem} .ovcard h3{margin:0;font-size:1.1rem}
+.ovcard label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--mute)}
+.ovcard label.chk{flex-direction:row;align-items:center;gap:8px}
+.ovcard input[type=text],.ovcard input[type=password]{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.ovcard .btn{padding:10px 14px;font-size:1rem}
+.ovbtns{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:8px;cursor:pointer}
+.seg button.on{background:var(--acc);color:var(--acc-ink)}
+#cloudStat{margin-top:4px}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Wirtschaftsimperium</h1>
+      <div class="sub">Prototyp 1.1 · Arbeitstitel</div>
+      <div class="sub" id="cloudStat"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="lbl">Geld</span><span class="val" id="money">0 €</span></div>
+      <div class="stat"><span class="lbl">Einnahmen / Min.</span><span class="val" id="income">0 €</span></div>
+      <div class="stat" id="rpStat" hidden><span class="lbl">Forschungspunkte</span><span class="val" id="rp">0</span></div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden>
+    <span id="bannerText"></span>
+    <button class="btn" id="bannerClose">OK</button>
+  </div>
+
+  <div class="banner" id="notice" hidden>
+    <span><b id="noticeTitle"></b> <span id="noticeText"></span></span>
+    <button class="btn" id="noticeClose">Verstanden</button>
+  </div>
+
+  <div class="evbar" id="evBar" hidden></div>
+
+  <div class="layout">
+  <nav id="tabs"></nav>
+  <main class="content">
+
+  <div class="cols" id="mainCols">
+    <section>
+      <h2>Produktion</h2>
+      <div id="buildings"></div>
+    </section>
+    <section>
+      <div id="perks"></div>
+      <div id="supply"></div>
+      <h2>Lager &amp; Markt</h2>
+      <div id="market"></div>
+    </section>
+  </div>
+
+  <div id="shopsView" hidden>
+    <h2>Läden</h2>
+    <div class="card csum" id="shopsSummary"></div>
+    <div id="shops"></div>
+  </div>
+
+  <div id="qualityView" hidden>
+    <h2>Qualität</h2>
+    <p class="small mute">Jede Ware sammelt Erfahrung, wenn du sie herstellst, auch von Hand. Ist der Balken voll, kannst du sie gegen Geld aufwerten. Ein Produkt ist immer nur so gut wie die schwächste Zutat und seine eigene Stufe.</p>
+    <div class="card csum" id="qualitySummary"></div>
+    <div id="lab"></div>
+    <div id="qualityCards"></div>
+  </div>
+
+  <div id="researchView" hidden>
+    <h2>Forschung</h2>
+    <p class="small mute">Forschungspunkte lassen sich nicht kaufen und nicht verkaufen. Hier gibst du sie für dauerhafte Verbesserungen aus, zusammen mit Geld. Jede Stufe kostet mehr als die davor.</p>
+    <div class="card csum" id="researchSummary"></div>
+    <div id="research"></div>
+  </div>
+
+  <div id="branchView" hidden>
+    <h2>Neue Branche</h2>
+    <p class="small mute">Mit einer weiteren Branche baust du dir ein zweites Standbein auf. Sie teilt sich Lager und Wasserwerk mit deinen bisherigen Betrieben, hat aber eigene Waren, Läden, Kunden und Qualität.</p>
+    <div id="branches"></div>
+    <p class="small mute">Weitere Branchen folgen.</p>
+  </div>
+
+  <div id="contractsView" hidden>
+    <h2>Kunden &amp; Lieferverträge</h2>
+    <p class="small mute">Verträge zahlen einen festen Preis, unabhängig von Marktlage und Verkaufsdruck. Beliefert wird nach deinen Läden und vor den Händlern, aber nur, wenn die Ware im Lager die verlangte Qualität hat. Bessere Qualität schaltet weitere Kunden frei.</p>
+    <div class="card csum" id="contractsSummary"></div>
+    <div id="contracts"></div>
+  </div>
+
+  <div id="ordersView" hidden>
+    <h2>Aufträge</h2>
+    <p class="small mute">Kunden melden sich mit Sonderaufträgen: eine feste Menge in der gewünschten Qualität bis zu einer Frist, zu einem Aufschlag auf den Normalpreis. Du lieferst direkt aus deinem Lager. Läuft die Frist ab, verfällt der Auftrag ohne Strafe. Aufträge laufen nur, solange du spielst.</p>
+    <div class="card csum" id="ordersSummary"></div>
+    <div id="orders"></div>
+  </div>
+
+  <div id="exchangeView" hidden>
+    <h2>Börse</h2>
+    <p class="small mute">Alle Waren auf einen Blick. Verkäufe sind gemessen (Durchschnitt der letzten Minute), nicht geschätzt. Der Verlauf zeigt Marktlage mal Verkaufsdruck der letzten 15 Minuten. Die gestrichelte rote Linie ist die Grenze deines Händlers.</p>
+    <div class="card csum" id="exchangeSummary"></div>
+    <div class="row actions" style="margin:0 0 6px"><button class="btn" id="exFilter">Nur Waren mit Hinweis zeigen</button></div>
+    <div id="exchange"></div>
+  </div>
+
+  </main>
+  </div>
+
+  <div class="card" id="xferPanel" hidden>
+    <strong>Spielstand auf ein anderes Gerät übertragen</strong>
+    <p class="small mute">Mit Konto brauchst du das nicht: einfach auf dem anderen Gerät anmelden. Das hier ist für Sicherungen und fürs Spielen ohne Konto. Der Spielstand liegt dann nur in diesem Browser. Zum Umziehen: hier <b>Exportieren</b>, den Text oder die Datei auf das andere Gerät bringen (E-Mail an dich selbst, Cloud, USB-Stick) und dort <b>Importieren</b>. Später gespielte Stände überschreiben ältere – spiel also immer auf einem Gerät zu Ende, bevor du wechselst.</p>
+    <textarea id="xferText" rows="4" style="width:100%;font:12px/1.3 monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px" placeholder="Hier steht nach „Exportieren“ dein Spielstand. Zum Laden: Text hier einfügen."></textarea>
+    <div class="row actions">
+      <button class="btn primary" id="xferExport">Exportieren (Text kopieren)</button>
+      <button class="btn" id="xferFile">Als Datei speichern</button>
+      <button class="btn" id="xferImport">Importieren (Text laden)</button>
+      <button class="btn" id="xferPick">Datei wählen …</button>
+      <input type="file" id="xferInput" accept=".txt,.json,text/plain,application/json" hidden>
+    </div>
+    <div class="small" id="xferMsg"></div>
+  </div>
+
+  <footer>
+    <span>Der Spielstand wird automatisch gespeichert (im Browser und, mit Konto, in der Cloud).</span>
+    <button class="btn" id="xferBtn">💾 Spielstand übertragen</button>
+    <button class="btn" id="reset">Spielstand zurücksetzen</button>
+  </footer>
+</div>
+
+<div class="ov" id="wiLogin" hidden>
+  <form class="ovcard" autocomplete="on">
+    <h1>Wirtschaftsimperium</h1>
+    <div class="sub">Prototyp 1.1 · Arbeitstitel</div>
+    <div class="seg"><button type="button" data-m="login" class="on">Anmelden</button><button type="button" data-m="reg">Neu registrieren</button></div>
+    <label>Name<input type="text" id="wiName" autocomplete="username" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+    <label>Passwort<input type="password" id="wiPass" autocomplete="current-password" maxlength="64"></label>
+    <label class="chk"><input type="checkbox" id="wiShow"> Passwort anzeigen</label>
+    <div class="small mute" id="wiHint" hidden>⚠️ Das Passwort kann nicht zurückgesetzt und dir nicht zugeschickt werden. Merk es dir gut. Der Name darf noch nicht vergeben sein.</div>
+    <div class="small down" id="wiErr"></div>
+    <button class="btn primary" type="submit" id="wiGo">Anmelden</button>
+    <div class="small mute" id="wiLocalNote"></div>
+    <button type="button" class="lnk small" id="wiGuest">Ohne Anmeldung spielen (Stand nur auf diesem Gerät)</button>
+  </form>
+</div>
+
+<script id="cloud">
+/* ============================================================
+   CLOUD-SPEICHER (Supabase): Anmeldung mit Name + Passwort, Spielstand in der Datenbank.
+   Läuft komplett über fetch (REST), ohne Zusatzbibliothek. Das Spiel selbst weiß davon nur
+   über boot / attach / pushForce. Fällt die Verbindung weg, läuft das Spiel lokal weiter.
+   ============================================================ */
+var WICloud = (function () {
+'use strict';
+var CFG = {
+  url: 'https://rlbtdfmoxljeddptbpxl.supabase.co',
+  key: 'sb_publishable_eaCqocEQJySt88GUJAohbQ_TCbBh39Z',   // öffentlicher Schlüssel, darf im Browser stehen (Zugriff regeln die Tabellen-Regeln)
+  domain: 'gmail.com'          // nur Platzhalter für die technische Pseudo-Adresse; es wird nie eine Mail verschickt
+};
+var SAVE_KEY = 'wirtschaftsimperium_v1', K_SESS = 'wi_session', K_SYNC = 'wi_sync', K_GUEST = 'wi_guest', K_NAME = 'wi_lastname';
+var DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 'Handy' : 'PC';
+var SAVE_EVERY = 30000;
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function $(s, r) { return (r || document).querySelector(s); }
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function fmtMoney(n) {
+  n = +n || 0;
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace('.', ',') + ' Mrd. €';
+  if (n >= 1e6) return (n / 1e6).toFixed(2).replace('.', ',') + ' Mio. €';
+  return Math.floor(n).toLocaleString('de-DE') + ' €';
+}
+function ago(ts) {
+  var s = Math.max(0, (Date.now() - Date.parse(ts)) / 1000);
+  if (!isFinite(s)) return '';
+  if (s < 90) return 'gerade eben';
+  if (s < 5400) return 'vor ' + Math.round(s / 60) + ' Min.';
+  if (s < 129600) return 'vor ' + Math.round(s / 3600) + ' Std.';
+  return 'vor ' + Math.round(s / 86400) + ' Tagen';
+}
+
+/* ---------- Name & Passwort -> Pseudo-Mail und Passwort ---------- */
+function norm(name) { return String(name || '').trim().replace(/\s+/g, ' ').toLowerCase(); }
+function emailOf(n) {
+  var bytes = unescape(encodeURIComponent(n)), hex = '';
+  for (var i = 0; i < bytes.length; i++) hex += ('0' + bytes.charCodeAt(i).toString(16)).slice(-2);
+  return 'wi' + hex + '@' + CFG.domain;
+}
+function passOf(pw, n) { return pw + '·wi·' + n; }   // verlängert kurze Passwörter (Supabase verlangt mindestens 6 Zeichen)
+
+/* ---------- HTTP ---------- */
+function http(method, path, body, token, extra) {
+  var h = { apikey: CFG.key };
+  if (body !== undefined) h['Content-Type'] = 'application/json';
+  if (token) h.Authorization = 'Bearer ' + token;
+  if (extra && extra.prefer) h.Prefer = extra.prefer;
+  return fetch(CFG.url + path, { method: method, headers: h, body: body === undefined ? undefined : JSON.stringify(body), keepalive: !!(extra && extra.keepalive) })
+    .then(function (r) {
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        return { ok: r.ok, status: r.status, json: j };
+      });
+    });
+}
+function errMsg(r) {
+  var j = r.json || {}, code = String(j.error_code || j.code || ''), msg = String(j.msg || j.message || j.error_description || j.error || '');
+  var m = (code + ' ' + msg).toLowerCase();
+  if (m.indexOf('already') >= 0 || m.indexOf('user_already_exists') >= 0) return 'Diesen Namen gibt es schon. Such dir einen anderen aus – oder melde dich an, falls er dir gehört.';
+  if (m.indexOf('invalid_credentials') >= 0 || m.indexOf('invalid login') >= 0) return 'Name oder Passwort stimmt nicht.';
+  if (m.indexOf('email_not_confirmed') >= 0 || m.indexOf('not confirmed') >= 0) return 'Technischer Fehler: In Supabase ist „Confirm email“ noch eingeschaltet. Das muss René ausschalten.';
+  if (m.indexOf('signup_disabled') >= 0 || m.indexOf('signups not allowed') >= 0) return 'Neue Registrierungen sind in Supabase abgeschaltet.';
+  if (r.status === 429 || m.indexOf('rate_limit') >= 0) return 'Zu viele Versuche in kurzer Zeit. Bitte einen Moment warten.';
+  if (m.indexOf('email_address_invalid') >= 0 || m.indexOf('invalid') >= 0 && m.indexOf('email') >= 0) return 'Technischer Fehler: Supabase lehnt die Hilfs-Adresse ab (' + msg + '). Bitte René Bescheid geben.';
+  return 'Fehler (' + r.status + '): ' + (msg || 'unbekannt');
+}
+
+/* ---------- Sitzung ---------- */
+var sess = null;            // { at, rt, exp, uid, name }
+function readSess() { try { var s = JSON.parse(lsGet(K_SESS)); return s && s.at && s.rt && s.uid ? s : null; } catch (e) { return null; } }
+function storeSess() { lsSet(K_SESS, JSON.stringify(sess)); }
+function makeSess(j, fallbackName) {
+  var u = j.user || {};
+  return { at: j.access_token, rt: j.refresh_token, exp: Date.now() + (+j.expires_in || 3600) * 1000, uid: u.id || (sess && sess.uid),
+           name: (u.user_metadata && u.user_metadata.name) || fallbackName || (sess && sess.name) || 'Spieler' };
+}
+var refreshing = null;
+function ensureToken() {
+  if (!sess) return Promise.reject(new Error('auth'));
+  if (sess.exp - Date.now() > 60000) return Promise.resolve(sess.at);
+  if (refreshing) return refreshing;
+  refreshing = http('POST', '/auth/v1/token?grant_type=refresh_token', { refresh_token: sess.rt }).then(function (r) {
+    refreshing = null;
+    if (r.ok && r.json && r.json.access_token) { sess = makeSess(r.json); storeSess(); return sess.at; }
+    if (r.status === 400 || r.status === 401 || r.status === 403) { authLost(); throw new Error('auth'); }
+    throw new Error('net');
+  }, function () { refreshing = null; throw new Error('net'); });
+  return refreshing;
+}
+
+/* ---------- Zustand ---------- */
+var startFn = null, getSave = null, haltFn = null;
+var lastTs = null;            // Zeitstempel der letzten Cloud-Version, auf der dieses Gerät aufbaut
+var paused = false, busy = false, online = true, guest = false, started = false, okTime = 0, timer = null;
+
+function readSync() { try { return JSON.parse(lsGet(K_SYNC)); } catch (e) { return null; } }
+function setSync(ts) { lastTs = ts; lsSet(K_SYNC, JSON.stringify({ uid: sess.uid, ts: ts })); }
+function readLocal() {
+  var raw = lsGet(SAVE_KEY); if (!raw) return null;
+  try { var o = JSON.parse(raw); if (o && typeof o === 'object' && o.b) return { raw: raw, obj: o }; } catch (e) {}
+  return null;
+}
+function hasProgress(l) { return !!(l && l.obj && (+l.obj.totalEarned || 0) > 0); }
+function buildRow(obj) {
+  var d = {}; Object.keys(obj).forEach(function (k) { if (k !== 'hist') d[k] = obj[k]; });   // Preisverlauf muss nicht in die Cloud
+  return { data: d, total_earned: +obj.totalEarned || 0, device: DEVICE, updated_at: new Date().toISOString() };
+}
+
+/* ---------- Oberfläche: Statuszeile ---------- */
+function setStat(kind) {
+  var e = $('#cloudStat'); if (!e) return;
+  var h;
+  if (guest) h = '📱 Nicht angemeldet – Spielstand nur auf diesem Gerät · <button class="lnk" data-act="in">Anmelden</button>';
+  else if (!sess) return;
+  else {
+    var t = kind === 'saving' ? 'speichert …' : kind === 'offline' ? '<span class="down">offline – wird nachgeholt</span>' : kind === 'paused' ? '<span class="down">Konflikt – bitte entscheiden</span>'
+      : okTime ? 'gespeichert ' + new Date(okTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
+    h = '☁️ <b>' + esc(sess.name) + '</b>' + (t ? ' · ' + t : '') + ' · <button class="lnk" data-act="out">Abmelden</button>';
+  }
+  e.innerHTML = h;
+}
+var outArmed = false, outTimer = null;
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest && ev.target.closest('#cloudStat [data-act]'); if (!b) return;
+  if (b.dataset.act === 'in') { lsDel(K_GUEST); location.reload(); return; }
+  if (!outArmed) { outArmed = true; b.textContent = online ? 'Wirklich abmelden? Nochmal klicken' : 'Nicht synchronisiert! Trotzdem abmelden?'; outTimer = setTimeout(function () { outArmed = false; setStat(); }, 5000); return; }
+  clearTimeout(outTimer); logout();
+});
+
+/* ---------- Oberfläche: Dialoge ---------- */
+function ask(title, html, buttons) {
+  return new Promise(function (resolve) {
+    var ov = document.createElement('div'); ov.className = 'ov dim';
+    ov.innerHTML = '<div class="ovcard"><h3>' + title + '</h3>' + html + '<div class="ovbtns"></div></div>';
+    var box = ov.querySelector('.ovbtns');
+    buttons.forEach(function (b) {
+      var x = document.createElement('button'); x.className = 'btn' + (b.primary ? ' primary' : ''); x.textContent = b.label;
+      x.addEventListener('click', function () { ov.remove(); resolve(b.k); });
+      box.appendChild(x);
+    });
+    document.body.appendChild(ov);
+  });
+}
+function overlay(on) { var o = $('#wiLogin'); if (o) o.hidden = !on; }
+
+/* ---------- Lesen / Schreiben der Spielstand-Zeile ---------- */
+function fetchRow(tok) {
+  return http('GET', '/rest/v1/saves?select=data,total_earned,device,updated_at&user_id=eq.' + sess.uid, undefined, tok).then(function (r) {
+    if (r.status === 401) { sess.exp = 0; throw new Error('net'); }
+    if (!r.ok) throw new Error('net');
+    return (r.json && r.json[0]) || null;
+  });
+}
+function writeRow(obj, mode, opts) {
+  return ensureToken().then(function (tok) {
+    var row = buildRow(obj), x = { prefer: 'return=representation', keepalive: !!(opts && opts.keepalive) };
+    var patchBody = { data: row.data, total_earned: row.total_earned, device: row.device, updated_at: row.updated_at };
+    var insert = function () {
+      var ins = { user_id: sess.uid, data: row.data, total_earned: row.total_earned, device: row.device, updated_at: row.updated_at };
+      return http('POST', '/rest/v1/saves?select=updated_at', ins, tok, x).then(function (r) {
+        if (r.ok && r.json && r.json[0]) { setSync(r.json[0].updated_at); return { ok: true }; }
+        if (r.status === 409) return { conflict: true };
+        return fail(r);
+      });
+    };
+    var fail = function (r) { if (r.status === 401) sess.exp = 0; var e = new Error('http'); e.status = r.status; throw e; };
+    if (mode === 'cond' && lastTs) {
+      return http('PATCH', '/rest/v1/saves?user_id=eq.' + sess.uid + '&updated_at=eq.' + encodeURIComponent(lastTs) + '&select=updated_at', patchBody, tok, x).then(function (r) {
+        if (r.ok) { if (r.json && r.json[0]) { setSync(r.json[0].updated_at); return { ok: true }; } return { conflict: true }; }
+        return fail(r);
+      });
+    }
+    if (mode === 'force') {
+      return http('PATCH', '/rest/v1/saves?user_id=eq.' + sess.uid + '&select=updated_at', patchBody, tok, x).then(function (r) {
+        if (r.ok) { if (r.json && r.json[0]) { setSync(r.json[0].updated_at); return { ok: true }; } return insert(); }
+        return fail(r);
+      });
+    }
+    return insert();
+  });
+}
+
+/* ---------- Beim Spielen: regelmäßig speichern, Konflikte erkennen ---------- */
+function pushNow(opts) {
+  var ka = !!(opts && opts.keepalive);
+  if (!sess || !getSave || paused || guest) return Promise.resolve();
+  if (busy && !ka) return Promise.resolve();
+  busy = true; if (!ka) setStat('saving');
+  return writeRow(getSave(), 'cond', opts).then(function (res) {
+    if (res.conflict) return showConflict();
+    online = true; okTime = Date.now(); setStat();
+  }).catch(function (e) {
+    if (e && e.message === 'auth') return;
+    online = false; setStat('offline');
+  }).then(function () { busy = false; });
+}
+function showConflict() {
+  paused = true; setStat('paused');
+  return ensureToken().then(fetchRow).catch(function () { return null; }).then(function (row) {
+    var info = row ? 'Auf dem Konto liegt ein Stand von <b>' + esc(row.device || 'einem anderen Gerät') + '</b> (' + ago(row.updated_at) + ', insgesamt verdient: ' + fmtMoney(row.total_earned) + '). '
+      : 'Auf dem Konto liegt ein anderer Stand. ';
+    return ask('Spielstand wurde woanders weitergespielt',
+      '<p class="small">' + info + 'Du kannst nur einen der beiden Stände behalten.</p>',
+      [{ k: 'cloud', label: 'Stand vom Konto laden', primary: true }, { k: 'mine', label: 'Diesen Stand behalten (überschreibt das Konto)' }]).then(function (k) {
+      if (k === 'cloud' && row) { haltFn && haltFn(); adoptCloud(row); location.reload(); return; }
+      return writeRow(getSave(), 'force').then(function () { paused = false; online = true; okTime = Date.now(); setStat(); }, function () { paused = false; online = false; setStat('offline'); });
+    });
+  });
+}
+function adoptCloud(row) {
+  lsSet(SAVE_KEY, JSON.stringify(row.data));
+  setSync(row.updated_at);
+}
+
+/* ---------- Schnittstelle zum Spiel ---------- */
+function attach(getter, halt) {
+  getSave = getter; haltFn = function () { paused = true; halt(); }; started = true;
+  if (guest || !sess) { setStat(); return; }
+  setStat();
+  setTimeout(function () { if (!lastTs) pushNow(); }, 1500);   // frisches Konto: erste Zeile gleich anlegen
+  timer = setInterval(function () { if (!document.hidden) pushNow(); }, SAVE_EVERY);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) pushNow({ keepalive: true }); else setTimeout(pushNow, 300); });
+  window.addEventListener('pagehide', function () { pushNow({ keepalive: true }); });
+  window.addEventListener('online', function () { pushNow(); });
+}
+function pushForce(obj) {          // Zurücksetzen / Import: Cloud-Stand sofort ersetzen. Ergebnis true/false
+  if (!sess || guest) return Promise.resolve(true);
+  paused = true;                   // währenddessen keine normalen Speicherungen (sonst überschreibt der alte Stand im Speicher den neuen)
+  return writeRow(obj, 'force').then(function () { return true; }, function () { paused = false; return false; });
+}
+function logout() {
+  var fin = function () { haltFn && haltFn(); lsDel(K_SESS); lsDel(K_SYNC); lsDel(SAVE_KEY); location.reload(); };
+  var p = (paused || !getSave) ? Promise.resolve() : pushNow();
+  p.then(fin, fin);
+}
+function authLost() {
+  sess = null; lsDel(K_SESS);
+  if (started) { haltFn && haltFn(); }
+  showLogin('Die Anmeldung ist abgelaufen. Bitte neu anmelden.');
+}
+
+/* ---------- Start: Anmeldung und Abgleich ---------- */
+function syncAndStart() {
+  var tok, row;
+  return ensureToken().then(function (t) { tok = t; return fetchRow(t); }).then(function (r) { row = r; return decide(row); }).catch(function (e) {
+    if (e && e.message === 'auth') return;
+    lastTs = (readSync() && readSync().uid === sess.uid) ? readSync().ts : null;      // Server nicht erreichbar: lokal weiterspielen, später abgleichen
+    if (readLocal()) { online = false; go(); setStat('offline'); return; }
+    showLogin('Keine Verbindung zum Server. Bitte Internet prüfen und es noch einmal versuchen.');
+  });
+}
+function go() { overlay(false); setStat(); if (!started) startFn(); }
+function decide(row) {
+  var local = readLocal(), sy = readSync(), mine = sy && sy.uid === sess.uid, prog = hasProgress(local);
+  var forceLocal = function () { return writeRow(local.obj, 'force').then(go); };
+  var useCloud = function () { adoptCloud(row); go(); };
+  if (!row) {
+    if (!prog) { lastTs = null; return go(); }
+    if (sy && sy.uid && !mine) {
+      return ask('Anderer Spielstand auf diesem Gerät', '<p class="small">Hier läuft noch ein Spielstand von einem anderen Konto (insgesamt verdient: ' + fmtMoney(local.obj.totalEarned) + '). Dein Konto ist neu und hat noch keinen Stand.</p>',
+        [{ k: 'take', label: 'Diesen Stand in mein Konto übernehmen', primary: true }, { k: 'new', label: 'Neu beginnen' }]).then(function (k) {
+        if (k === 'take') return forceLocal();
+        lsDel(SAVE_KEY); lastTs = null; go();
+      });
+    }
+    return forceLocal();                         // bisheriger Stand dieses Geräts wandert ins neue Konto
+  }
+  if (!prog) return useCloud();
+  if (mine && Date.parse(sy.ts) === Date.parse(row.updated_at)) { lastTs = row.updated_at; return go(); }
+  if (mine && !(+local.obj.totalEarned > +row.total_earned)) return useCloud();
+  var cloudBetter = +row.total_earned >= +local.obj.totalEarned;
+  return ask('Welchen Spielstand möchtest du?',
+    '<p class="small">Es gibt zwei verschiedene Stände. Der andere wird danach überschrieben.</p>' +
+    '<p class="small"><b>Konto</b> (' + esc(row.device || 'anderes Gerät') + ', ' + ago(row.updated_at) + '): insgesamt verdient ' + fmtMoney(row.total_earned) + '<br>' +
+    '<b>Dieses Gerät:</b> insgesamt verdient ' + fmtMoney(local.obj.totalEarned) + '</p>',
+    [{ k: 'cloud', label: 'Stand vom Konto laden', primary: cloudBetter }, { k: 'local', label: 'Stand dieses Geräts nehmen', primary: !cloudBetter }]).then(function (k) {
+    if (k === 'cloud') return useCloud();
+    return forceLocal();
+  });
+}
+
+function showLogin(msg) {
+  var o = $('#wiLogin'); if (!o) return;
+  o.hidden = false;
+  var mode = 'login', f = $('form', o), nameI = $('#wiName'), passI = $('#wiPass'), err = $('#wiErr'), go2 = $('#wiGo'), hint = $('#wiHint');
+  err.textContent = msg || '';
+  if (!nameI.value) nameI.value = lsGet(K_NAME) || '';
+  var local = readLocal();
+  $('#wiLocalNote').textContent = hasProgress(local) ? 'Dein bisheriger Spielstand auf diesem Gerät wird in dein Konto übernommen.' : '';
+  var setMode = function (m) {
+    mode = m;
+    Array.prototype.forEach.call(o.querySelectorAll('.seg button'), function (b) { b.classList.toggle('on', b.dataset.m === m); });
+    go2.textContent = m === 'login' ? 'Anmelden' : 'Konto anlegen';
+    passI.autocomplete = m === 'login' ? 'current-password' : 'new-password';
+    hint.hidden = m === 'login'; err.textContent = '';
+  };
+  setMode('login');
+  if (o.dataset.bound) return;
+  o.dataset.bound = '1';
+  Array.prototype.forEach.call(o.querySelectorAll('.seg button'), function (b) { b.addEventListener('click', function () { setMode(b.dataset.m); }); });
+  $('#wiShow').addEventListener('change', function () { passI.type = this.checked ? 'text' : 'password'; });
+  $('#wiGuest').addEventListener('click', function () { guest = true; lsSet(K_GUEST, '1'); go(); });
+  var busyLogin = false;
+  f.addEventListener('submit', function (ev) {
+    ev.preventDefault(); if (busyLogin) return;
+    var name = nameI.value.trim(), n = norm(name), pw = passI.value;
+    if (n.length < 2 || n.length > 20) { err.textContent = 'Der Name braucht 2 bis 20 Zeichen.'; return; }
+    if (pw.length < 4) { err.textContent = 'Das Passwort braucht mindestens 4 Zeichen.'; return; }
+    busyLogin = true; go2.disabled = true; err.textContent = ''; go2.textContent = 'Einen Moment …';
+    var done = function () { busyLogin = false; go2.disabled = false; go2.textContent = mode === 'login' ? 'Anmelden' : 'Konto anlegen'; };
+    var login = function () { return http('POST', '/auth/v1/token?grant_type=password', { email: emailOf(n), password: passOf(pw, n) }); };
+    var step = mode === 'login' ? login() : http('POST', '/auth/v1/signup', { email: emailOf(n), password: passOf(pw, n), data: { name: name } }).then(function (r) {
+      if (r.ok && r.json && !r.json.access_token) return login();       // Supabase hat nicht gleich angemeldet: direkt anmelden
+      return r;
+    });
+    step.then(function (r) {
+      if (!(r.ok && r.json && r.json.access_token)) { err.textContent = errMsg(r); done(); return; }
+      sess = makeSess(r.json, name); storeSess(); lsSet(K_NAME, name); lsDel(K_GUEST); guest = false;
+      if (started) { location.reload(); return; }
+      passI.value = ''; done(); syncAndStart();
+    }, function () { err.textContent = 'Keine Verbindung zum Server. Bitte Internet prüfen.'; done(); });
+  });
+}
+
+function boot(start) {
+  startFn = start;
+  if (window.WI_NO_CLOUD || !CFG.url || typeof fetch !== 'function') { start(); return; }
+  if (lsGet(K_GUEST) === '1') { guest = true; go(); return; }
+  sess = readSess();
+  if (!sess) { showLogin(); return; }
+  syncAndStart();
+}
+
+return { boot: boot, attach: attach, pushForce: pushForce, _t: { norm: norm, emailOf: emailOf, passOf: passOf } };
+})();
+</script>
+
+<script>
+window.__wiStartGame = function () {
+'use strict';
+
+/* ============================================================
+   DATEN – hier werden später neue Branchen, Waren und Gebäude
+   einfach ergänzt. Die Engine darunter bleibt gleich.
+   ============================================================ */
+var DATA = {
+  goods: {
+    water: { name: 'Wasser',   icon: '💧', base: 1, vol: 0.6 },
+    wheat: { name: 'Getreide', icon: '🌾', base: 2, vol: 0.8 },
+    flour: { name: 'Mehl',     icon: '🥣', base: 6, vol: 0.9 },
+    bread: { name: 'Brot',     icon: '🍞', base: 14, vol: 1.3 },
+    barley: { name: 'Gerste',  icon: '🌱', base: 3, vol: 0.8 },
+    hops:   { name: 'Hopfen',  icon: '🌿', base: 8, vol: 1.2 },
+    malt:   { name: 'Malz',    icon: '🫘', base: 10, vol: 1.1 },
+    beer:   { name: 'Bier',    icon: '🍺', base: 18, vol: 1.4 },
+    // Hofwirtschaft
+    grass:  { name: 'Gras',     icon: '🍀', base: 2,  vol: 0.7 },
+    milk:   { name: 'Milch',    icon: '🥛', base: 4,  vol: 1.0 },
+    butter: { name: 'Butter',   icon: '🧈', base: 20, vol: 1.1 },
+    cheese: { name: 'Käse',     icon: '🧀', base: 34, vol: 1.2 },
+    eggs:   { name: 'Eier',     icon: '🥚', base: 5,  vol: 1.0 },
+    pig:    { name: 'Schlachtschwein', icon: '🐖', base: 22, vol: 1.1 },
+    meat:   { name: 'Fleisch',  icon: '🥩', base: 12, vol: 1.0 },
+    sausage: { name: 'Wurst',   icon: '🌭', base: 20, vol: 1.3 },
+    wool:   { name: 'Wolle',    icon: '🧶', base: 6,  vol: 0.9 },
+    cow:    { name: 'Schlachtrind', icon: '🐂', base: 34, vol: 1.1 },
+    lamb:   { name: 'Schlachtlamm', icon: '🐑', base: 16, vol: 1.1 }
+  },
+  // Betriebe: Jeder hat seinen eigenen Tab. Gebäude gehören über "industry" zu einem Betrieb. Zutaten aus anderen
+  // Betrieben holt sich ein Gebäude automatisch aus dem gemeinsamen Lager. "unlock" = Hinweis, der den Tab freischaltet.
+  industries: {
+    water:  { name: 'Wasserwerk', icon: '💧', group: 'raw' },
+    farm:   { name: 'Bauernhof',  icon: '🌾', group: 'raw' },
+    mill:   { name: 'Mühle',      icon: '⚙️', group: 'baking', unlock: 'tipMillTab' },
+    bakery: { name: 'Bäckerei',   icon: '🥖', group: 'baking', unlock: 'tipBakeryTab' },
+    hops:   { name: 'Hopfenhof',  icon: '🌿', group: 'brewing', unlock: 'branchBrewery' },
+    malt:   { name: 'Mälzerei',   icon: '🏭', group: 'brewing', unlock: 'branchBrewery' },
+    brewery: { name: 'Brauerei',  icon: '🍺', group: 'brewing', unlock: 'branchBrewery' },
+    livestock: { name: 'Tierhof',   icon: '🐄', group: 'farmhouse', unlock: 'branchFarm' },
+    dairy:     { name: 'Molkerei',  icon: '🧀', group: 'farmhouse', unlock: 'branchFarm' },
+    slaughter: { name: 'Schlachthof', icon: '🥩', group: 'farmhouse', unlock: 'branchFarm' },
+    butcher:   { name: 'Metzgerei', icon: '🌭', group: 'farmhouse', unlock: 'branchFarm' }
+  },
+  // Gruppen der Seitenleiste: eine pro Branche. Eine Gruppe erscheint, sobald einer ihrer Betriebe frei ist.
+  groups: [
+    { id: 'raw',     name: 'Rohstoffe', icon: '🌱' },
+    { id: 'baking',  name: 'Backwaren', icon: '🥖' },
+    { id: 'brewing', name: 'Brauwesen', icon: '🍺' },
+    { id: 'farmhouse', name: 'Hofwirtschaft', icon: '🐄' }
+  ],
+  // Neue Branchen: werden gegen eine Gründungsgebühr freigeschaltet (setzt state.unlocked[unlock]).
+  // need: Voraussetzung (Ware muss mindestens diesen Stern haben).
+  branches: [
+    { id: 'brewery', unlock: 'branchBrewery', name: 'Brauerei', icon: '🍺', cost: 100000, need: { good: 'water', star: 5 },
+      desc: 'Aus Gerste, Hopfen und Wasser wird Bier. Neue Betriebe: Hopfenhof, Mälzerei und Brauerei, dazu Gerstenfelder auf dem Bauernhof, ein eigener Ausschank und Bier-Verträge. Das Wasser kommt aus deinem Wasserwerk, du teilst es dir mit der Bäckerei.',
+      text: 'Gerste wächst auf dem Bauernhof, Hopfen im neuen Hopfenhof. Die Mälzerei macht aus Gerste Malz, die Brauerei braut daraus mit Hopfen und Wasser Bier. Verkaufen kannst du es am Markt, im Ausschank und über Verträge mit Gaststätten.' }
+    ,
+    { id: 'farmstead', unlock: 'branchFarm', name: 'Hofwirtschaft', icon: '🐄', cost: 1000000, need: { good: 'wheat', star: 6 },
+      desc: 'Ein Hof mit Kühen, Rindern, Schafen, Hühnern und Schweinen. Die Tiere fressen Gras und dein Getreide. Die Milch geht in die Molkerei (Butter, Käse), Schweine, Rinder und Lämmer in den Schlachthof und in die Metzgerei (Fleisch, Wurst), dazu Eier und Wolle. Neue Betriebe, Läden und Verträge. Du brauchst Getreide in Meisterqualität (★6), weil deine Tiere davon leben.',
+      text: 'Auf der Weide wächst Gras. Im Tierhof stehen Kühe, Rinder, Schafe, Hühner und Schweine, sie fressen Gras und Getreide und brauchen Wasser. Die Molkerei macht aus Milch Butter und Käse. Der Schlachthof verarbeitet Schweine, Rinder und Lämmer zu Fleisch, die Metzgerei macht daraus Wurst. Verkaufen kannst du alles am Markt, in Läden und über Verträge.' }
+  ],
+  // Lager pro Ware: Kapazität = base * growth^Stufe, Ausbaukosten wachsen mit costGrowth
+  storage: { base: 40, growth: 1.6, cost: 15, costGrowth: 1.7 },
+  // Qualität: Sterne pro Ware. Alle Listen sind nach dem ZIEL-Stern (1 bis 6) indiziert.
+  //   bonus:  Gesamtbonus auf den Warenwert bei diesem Stern (★6 = +175 %, also zusätzlich +100 % auf ★5)
+  //   xp:     Erfahrung (hergestellte Stück) für den Aufstieg auf diesen Stern, Überschuss bleibt erhalten
+  //   master: Stern 6 (Meisterprüfung) zählt nur Stück, die in ★5-Qualität hergestellt wurden
+  //   money:  Geld pro Aufstieg für die Bezugsware (Grundpreis moneyRef), bei anderen Waren mit sqrt(Grundpreis/moneyRef)
+  //   rp:     Forschungspunkte pro Aufstieg – wird erst mit dem Labor verlangt
+  quality: {
+    maxStar: 6,
+    bonus:  [0, 0.05, 0.12, 0.25, 0.45, 0.75, 1.75],
+    xp:     [0, 50, 150, 450, 1350, 4050],
+    master: 20000,
+    money:  [0, 300, 1500, 8000, 40000, 200000, 2000000],
+    moneyRef: 5,
+    rp:     [0, 1, 3, 8, 20, 50, 200]
+  },
+  // Labor: erzeugt Forschungspunkte (rp pro Durchlauf und Anlage). Die Punkte kann man nicht verkaufen,
+  // sie werden nur für Sternaufstiege ausgegeben (DATA.quality.rp).
+  lab: { name: 'Labor', icon: '🔬', time: 60, rp: 1, cost: 400, costGrowth: 1.25, managerCost: 2500 },
+  // Markt: Die Marktlage (state.market) ändert sich alle "interval" Sekunden (Rückkehr zum Normalwert um "revert"
+  // plus Zufall von ±noise/2). Dein eigenes Verkaufen drückt den Preis zusätzlich (state.pressure): jedes verkaufte
+  // Stück senkt ihn um "impact", er erholt sich mit "recover" pro Sekunde.
+  // Tipp: Für einen langsameren Takt (z. B. alle 20 s) interval hochsetzen und revert/noise größer wählen
+  // (zuletzt probiert: interval 20, revert 0.1, noise 0.28, min 0.5).
+  // "impact" gilt für eine Ware mit dem Grundpreis "impactRef". Billigere Waren belasten den Markt weniger
+  // (er nimmt mehr Stück davon auf), teurere stärker – höchstens aber "impactMax" pro Stück.
+  market: { interval: 1, revert: 0.03, noise: 0.06, min: 0.3, max: 1.6, impact: 0.004, impactRef: 14, impactMax: 0.02,
+            recover: 0.03, pressureMin: 0.5, waveRevert: 0.01, waveNoise: 0.04,
+            minPct: { def: 90, lo: 50, hi: 150, step: 5 },
+            reserve: { step: 5, max: 95 } },
+  // Kaufbare Verbesserungen fürs Büro. Sichtbar werden sie erst, wenn der Hinweis "unlock" ausgelöst wurde.
+  perks: [
+    { id: 'bookkeeping', name: 'Buchhaltung', icon: '📒', cost: 400, unlock: 'tipBookkeeping',
+      desc: 'Zeigt pro Ware Produktion, Verbrauch und Verkauf (Händler und Läden) pro Minute und die Bilanz daraus. ' +
+            'Es zählen nur Gebäude mit Manager, bei voller Auslastung; beim Verkauf ist es der Höchstwert.' }
+  ],
+  // Läden: verkaufen aus deinem Lager zu DEINEM Preis. Die Nachfrage sinkt, wenn der Preis über dem
+  // Richtwert liegt (retail * Grundpreis, folgt etwas dem Marktpreis). Verkauft wird min(Nachfrage, Kapazität).
+  //   capacity: Verkäufe pro Minute und Stufe   demand: Kunden pro Minute und Stufe beim Richtpreis
+  //   sensitivity: wie stark die Nachfrage auf den Preis reagiert   priceStep: Schrittweite der Preis-Knöpfe
+  //   managerCost: Preis-Manager (stellt den Preis selbst so ein, dass der Umsatz am höchsten ist)
+  shops: [
+    { id: 'bakeshop', industry: 'bakery', name: 'Bäckerei-Laden', icon: '🏪', good: 'bread',
+      cost: 500, costGrowth: 1.5, capacity: 6, demand: 10, retail: 1.5, sensitivity: 1.5, priceStep: 0.5, managerCost: 8000 },
+    { id: 'taproom', industry: 'brewery', name: 'Brauerei-Ausschank', icon: '🍻', good: 'beer', unlock: 'branchBrewery',
+      cost: 6000, costGrowth: 1.5, capacity: 5, demand: 8, retail: 1.5, sensitivity: 1.5, priceStep: 0.5, managerCost: 30000 },
+    { id: 'eggstand', industry: 'livestock', name: 'Hofladen', icon: '🧺', good: 'eggs', unlock: 'branchFarm',
+      cost: 6000, costGrowth: 1.5, capacity: 12, demand: 18, retail: 1.5, sensitivity: 1.5, priceStep: 0.25, managerCost: 30000 },
+    { id: 'woolshop', industry: 'livestock', name: 'Handarbeitsladen', icon: '🧵', good: 'wool', unlock: 'branchFarm',
+      cost: 6000, costGrowth: 1.5, capacity: 10, demand: 15, retail: 1.5, sensitivity: 1.5, priceStep: 0.25, managerCost: 30000 },
+    { id: 'cheeseshop', industry: 'dairy', name: 'Käseladen', icon: '🧀', good: 'cheese', unlock: 'branchFarm',
+      cost: 15000, costGrowth: 1.5, capacity: 4, demand: 6, retail: 1.5, sensitivity: 1.5, priceStep: 1, managerCost: 60000 },
+    { id: 'meatshop', industry: 'butcher', name: 'Metzgerei-Theke', icon: '🍖', good: 'sausage', unlock: 'branchFarm',
+      cost: 15000, costGrowth: 1.5, capacity: 6, demand: 9, retail: 1.5, sensitivity: 1.5, priceStep: 0.5, managerCost: 60000 }
+  ],
+  // Forschung: dauerhafte Verbesserungen, bezahlt mit Forschungspunkten UND Geld. Jede Stufe kostet rp[Stufe] 🔬 und
+  // money[Stufe] €. "per" ist der Effekt pro Stufe (siehe Hilfsfunktionen unter ENGINE), "text" beschreibt ihn.
+  researchCats: [
+    { id: 'prod',  name: 'Produktion & Qualität', icon: '⚙️' },
+    { id: 'sales', name: 'Markt & Verkauf',       icon: '🛍️' }
+  ],
+  research: [
+    { id: 'speed', cat: 'prod', name: 'Prozessoptimierung', icon: '⚙️', per: 0.05,
+      desc: 'Alle Gebäude arbeiten schneller, ohne neue Anlagen. Lohnt sich vor allem bei einer Ware im Engpass (Bilanz im Minus), sonst läuft nur das Lager voller.',
+      rp: [20, 40, 80, 160, 320], money: [15000, 45000, 135000, 400000, 1200000],
+      text: function (l) { return l ? 'Gebäude arbeiten ' + nf0.format(l * 5) + ' % schneller' : 'noch keine Wirkung'; } },
+    { id: 'yieldGrain', cat: 'prod', name: 'Ackerbau-Technik', icon: '🌾', per: 0.10, goods: ['wheat', 'barley', 'hops'],
+      desc: 'Besseres Saatgut, Dünger und Maschinen: Getreide-, Gersten- und Hopfenfelder liefern pro Durchlauf mehr. Wirkt auf alle Felder, auch auf die, die du später baust. Lohnt sich, wenn weitere Felder sehr teuer werden.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Felder liefern +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'yieldGrass', cat: 'prod', name: 'Weidewirtschaft', icon: '🍀', per: 0.10, goods: ['grass'], unlock: 'branchFarm',
+      desc: 'Fruchtbarere Wiesen und Fruchtwechsel: Jede Weide liefert pro Durchlauf mehr Gras.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Weiden liefern +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'yieldWater', cat: 'prod', name: 'Brunnenbau', icon: '💧', per: 0.10, goods: ['water'],
+      desc: 'Tiefere Bohrungen und stärkere Pumpen: Jeder Brunnen liefert pro Durchlauf mehr Wasser.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Brunnen liefern +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'yieldMill', cat: 'prod', name: 'Mahl- & Mälztechnik', icon: '🛠️', per: 0.10, goods: ['flour', 'malt'],
+      desc: 'Modernere Mühlsteine und Darren: Mühlen und Mälzereien machen aus derselben Menge Rohstoff mehr Mehl und Malz. Das entlastet Weizen und Gerste.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Mühlen und Mälzereien liefern +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'yieldAnimal', cat: 'prod', name: 'Tierzucht', icon: '🐄', per: 0.10, goods: ['milk', 'eggs', 'pig', 'cow', 'lamb', 'wool'], unlock: 'branchFarm',
+      desc: 'Bessere Rassen und Futterverwertung: Kuhställe, Hühnerställe, Schweinemast, Rinder, Schafe und Lämmer liefern aus demselben Futter mehr. Das entlastet Gras und Weizen.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Ställe liefern +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'yieldFinish', cat: 'prod', name: 'Verarbeitungstechnik', icon: '🏅', per: 0.10, goods: ['bread', 'beer', 'butter', 'cheese', 'meat', 'sausage'],
+      desc: 'Bessere Verfahren in Backstuben, Brauereien, Molkerei, Schlachthof und Wurstküche: Aus derselben Zutatenmenge entsteht mehr Fertigware. Spart Mehl, Milch und Fleisch.',
+      rp: [40, 100, 250, 600, 1500, 3500], money: [150000, 450000, 1400000, 4000000, 12000000, 36000000],
+      text: function (l) { return l ? 'Verarbeitung liefert +' + nf0.format(l * 10) + ' % mehr' : 'noch keine Wirkung'; } },
+    { id: 'recover', cat: 'sales', name: 'Marktbeziehungen', icon: '🤝', per: 0.20,
+      desc: 'Der Markt erholt sich nach deinen Verkäufen schneller. Deine Händler halten den Preis besser und verkaufen mehr.',
+      rp: [15, 30, 60, 120], money: [10000, 30000, 90000, 270000],
+      text: function (l) { return l ? 'Verkaufsdruck erholt sich ' + nf0.format(l * 20) + ' % schneller' : 'noch keine Wirkung'; } },
+    { id: 'shopcap', cat: 'sales', name: 'Ladenausstattung', icon: '🛍️', per: 0.08,
+      desc: 'Mehr Regale und Personal: Deine Läden bedienen mehr Kunden pro Minute.',
+      rp: [25, 50, 100, 200, 400], money: [20000, 60000, 180000, 540000, 1600000],
+      text: function (l) { return l ? 'Läden: Nachfrage und Kapazität +' + nf0.format(l * 8) + ' %' : 'noch keine Wirkung'; } },
+    { id: 'brand', cat: 'sales', name: 'Markenaufbau', icon: '🏷️', per: 0.04,
+      desc: 'Ein bekannter Name macht Kunden zahlungsbereiter. Du kannst in deinen Läden höhere Preise verlangen.',
+      rp: [20, 40, 80, 160, 320], money: [15000, 45000, 135000, 400000, 1200000],
+      text: function (l) { return l ? 'Richtpreis in Läden +' + nf0.format(l * 4) + ' %' : 'noch keine Wirkung'; } },
+    { id: 'contract', cat: 'sales', name: 'Vertriebsnetz', icon: '📞', per: 0.03,
+      desc: 'Bessere Verhandlungen mit deinen Vertragskunden: Alle Verträge zahlen mehr pro Stück.',
+      rp: [20, 40, 80, 160, 320], money: [10000, 30000, 90000, 270000, 800000],
+      text: function (l) { return l ? 'Vertragspreise +' + nf0.format(l * 3) + ' %' : 'noch keine Wirkung'; } },
+    { id: 'starcost', cat: 'prod', name: 'Sparsame Veredelung', icon: '💎', per: 0.10,
+      desc: 'Effizientere Verfahren senken das Geld, das ein Sternaufstieg kostet. Die Forschungspunkte bleiben gleich.',
+      rp: [40, 100, 250], money: [20000, 80000, 320000],
+      text: function (l) { return l ? 'Sternaufstiege kosten ' + nf0.format(l * 10) + ' % weniger Geld' : 'noch keine Wirkung'; } }
+  ],
+  // Lieferverträge: feste Abnehmer mit eigener Menge und eigenem Preis. Sie zahlen "factor" x Normalpreis der Ware
+  // (inkl. Qualitätsbonus), unabhängig von Marktlage und Verkaufsdruck. Beliefert wird nach den Läden und vor den
+  // Markthändlern, solange die Ware im Lager da ist und ihre Durchschnittsqualität mindestens "minStar" erreicht.
+  // Freigeschaltet wird ein Vertrag, sobald die Ware selbst Stern "minStar" erreicht hat. cost = einmalige Abschlussgebühr.
+  contracts: [
+    { id: 'canteen',  industry: 'bakery', name: 'Kantine & Catering', icon: '🍽️', good: 'bread', minStar: 2, qty: 20, factor: 1.00, cost: 2500,
+      desc: 'Verlässlicher Abnehmer für den Mittagstisch. Zahlt den Normalpreis.' },
+    { id: 'market',   industry: 'bakery', name: 'Supermarkt-Kette',   icon: '🛒', good: 'bread', minStar: 3, qty: 40, factor: 0.92, cost: 6000,
+      desc: 'Nimmt große Mengen ab, drückt dafür aber den Preis.' },
+    { id: 'cafe',     industry: 'bakery', name: 'Café-Kette',         icon: '☕', good: 'bread', minStar: 4, qty: 15, factor: 1.12, cost: 20000,
+      desc: 'Kleine Mengen, aber Gäste, die für gutes Brot mehr zahlen.' },
+    { id: 'hotel',    industry: 'bakery', name: 'Hotelgruppe',        icon: '🏨', good: 'bread', minStar: 5, qty: 12, factor: 1.25, cost: 60000,
+      desc: 'Frühstücksbuffet mit Anspruch. Nur erstklassige Ware.' },
+    { id: 'deli',     industry: 'bakery', name: 'Feinkost-Manufaktur', icon: '🥂', good: 'bread', minStar: 6, qty: 6, factor: 1.50, cost: 250000,
+      desc: 'Nur Meisterware. Wenig Menge, dafür ein Preis wie im Sterne-Restaurant.' },
+    { id: 'inn',      industry: 'brewery', name: 'Dorfgaststätte',      icon: '🍻', good: 'beer', minStar: 2, qty: 20, factor: 1.00, cost: 8000, unlock: 'branchBrewery',
+      desc: 'Der Stammtisch trinkt jeden Abend. Zahlt den Normalpreis.' },
+    { id: 'drinks',   industry: 'brewery', name: 'Getränkemarkt-Kette', icon: '🛒', good: 'beer', minStar: 3, qty: 40, factor: 0.92, cost: 20000, unlock: 'branchBrewery',
+      desc: 'Kistenweise Abnahme, aber knapp kalkuliert.' },
+    { id: 'garden',   industry: 'brewery', name: 'Biergarten-Gruppe',   icon: '🌳', good: 'beer', minStar: 4, qty: 15, factor: 1.12, cost: 60000, unlock: 'branchBrewery',
+      desc: 'Die Gäste schätzen gutes Bier und zahlen dafür.' },
+    { id: 'tent',     industry: 'brewery', name: 'Festzelt',            icon: '🎪', good: 'beer', minStar: 5, qty: 12, factor: 1.25, cost: 180000, unlock: 'branchBrewery',
+      desc: 'Große Feste verlangen erstklassiges Bier.' },
+    { id: 'craftbar', industry: 'brewery', name: 'Craft-Bier-Bar',      icon: '🥂', good: 'beer', minStar: 6, qty: 6, factor: 1.50, cost: 750000, unlock: 'branchBrewery',
+      desc: 'Nur Meisterware für Kenner. Kleine Menge, großer Preis.' },
+    { id: 'delicatessen', industry: 'dairy', name: 'Feinkostladen',      icon: '🥖', good: 'cheese', minStar: 2, qty: 10, factor: 1.00, cost: 30000, unlock: 'branchFarm',
+      desc: 'Der Käsestand auf dem Markt. Zahlt den Normalpreis.' },
+    { id: 'chill',    industry: 'dairy', name: 'Supermarkt-Kühltheke', icon: '🛒', good: 'cheese', minStar: 3, qty: 20, factor: 0.92, cost: 80000, unlock: 'branchFarm',
+      desc: 'Große Mengen für die Kühltheke, knapp kalkuliert.' },
+    { id: 'bistro',   industry: 'dairy', name: 'Weinstube & Bistro',   icon: '🍷', good: 'cheese', minStar: 4, qty: 8, factor: 1.12, cost: 250000, unlock: 'branchFarm',
+      desc: 'Käseplatten für Kenner. Wenig Menge, guter Preis.' },
+    { id: 'hotelkitchen', industry: 'dairy', name: 'Hotelküche',       icon: '🏨', good: 'cheese', minStar: 5, qty: 6, factor: 1.25, cost: 800000, unlock: 'branchFarm',
+      desc: 'Das Frühstücksbuffet mit Anspruch verlangt erstklassigen Käse.' },
+    { id: 'gourmet',  industry: 'dairy', name: 'Sternerestaurant',     icon: '⭐', good: 'cheese', minStar: 6, qty: 3, factor: 1.50, cost: 2500000, unlock: 'branchFarm',
+      desc: 'Nur Meisterware, kleinste Menge, bester Preis.' },
+    { id: 'snack',    industry: 'butcher', name: 'Imbiss-Kette',       icon: '🌭', good: 'sausage', minStar: 2, qty: 16, factor: 1.00, cost: 25000, unlock: 'branchFarm',
+      desc: 'Bratwurst im Brötchen, jeden Tag. Zahlt den Normalpreis.' },
+    { id: 'discount', industry: 'butcher', name: 'Fleischwaren-Discounter', icon: '🛒', good: 'sausage', minStar: 3, qty: 32, factor: 0.92, cost: 70000, unlock: 'branchFarm',
+      desc: 'Kühlregale voller Wurst, knapp kalkuliert.' },
+    { id: 'grill',    industry: 'butcher', name: 'Grillrestaurant',    icon: '🔥', good: 'sausage', minStar: 4, qty: 12, factor: 1.12, cost: 220000, unlock: 'branchFarm',
+      desc: 'Gäste, die für gute Wurst mehr zahlen.' },
+    { id: 'stadium',  industry: 'butcher', name: 'Stadion-Gastronomie', icon: '🏟️', good: 'sausage', minStar: 5, qty: 10, factor: 1.25, cost: 700000, unlock: 'branchFarm',
+      desc: 'Zehntausende Besucher, erstklassige Ware.' },
+    { id: 'goldbutcher', industry: 'butcher', name: 'Gourmet-Metzger',  icon: '🥂', good: 'sausage', minStar: 6, qty: 5, factor: 1.50, cost: 2200000, unlock: 'branchFarm',
+      desc: 'Nur Meisterware. Kleine Menge, der beste Preis.' }
+  ],
+  // Ereignisse: Marktschocks und Festtage. Laufzeit in Spielsekunden (stehen still, solange du weg bist).
+  events: {
+    first: [420, 720], every: [720, 1500], max: 2,
+    types: [
+      { id: 'boom', w: 35, icon: '📈', title: 'Nachfrage-Boom', mult: [1.3, 1.6], time: [300, 420],
+        text: 'Plötzlich will jeder {good}: Der Preis steigt. Verkauf jetzt, oder Händler-Mindestpreis hochsetzen.' },
+      { id: 'slump', w: 25, icon: '📉', title: 'Preissturz', mult: [0.6, 0.75], time: [300, 420],
+        text: 'Der Markt für {good} bricht ein. Lager aufbauen und abwarten lohnt sich, oder Verträge und Läden nutzen.' },
+      { id: 'festival', w: 25, icon: '🎉', title: 'Festtag', mult: [1.35, 1.6], time: [300, 420],
+        text: 'Die Stadt feiert: Alle Läden haben mehr Kundschaft. Halte genug Ware im Lager.' },
+      { id: 'buyer', w: 15, icon: '🚚', title: 'Großabnehmer', mult: [1.9, 2.6], time: [480, 480],
+        text: 'Ein Großabnehmer meldet sich mit einem Sonderauftrag zu einem Spitzenpreis.' }
+    ]
+  },
+  // Aufträge: Kunden wollen eine bestimmte Menge bis zu einem Zeitpunkt, mit Qualitätswunsch und Aufschlag.
+  orders: {
+    first: [40, 90], every: [150, 300], max: 3, time: [720, 1200],
+    minutes: [4, 10],             // Menge = so viele Minuten deiner Produktion (mindestens ein Anteil des Lagers)
+    premium: [1.35, 1.9],         // Preisfaktor gegenüber dem Normalpreis der verlangten Qualität
+    topStar: 0.35,                // Wahrscheinlichkeit für einen Auftrag auf deiner höchsten Stufe (dann +0,25 Aufschlag)
+    customers: ['Café Lindenhof', 'Hotel Elbblick', 'Stadtfest Altmarkt', 'Kantine Nord', 'Bäckerei Sonnenschein', 'Gasthaus Zur Linde',
+                'Catering Meier', 'Wochenmarkt Neustadt', 'Vereinsheim Süd', 'Biergarten Blasewitz', 'Frühstückspension Elbe', 'Feinkost Wagner']
+  },
+  // Vertrags-Upgrades: pro Vertrag bis zu "max" Stufen auf Menge und auf Preis. Kosten = cost-Anteil des Abschlusspreises x 2^Stufe.
+  //   qty:   +20 % Menge pro Stufe (mehr Ware, die der Kunde jede Minute abnimmt)
+  //   price: +8 Prozentpunkte Preisfaktor pro Stufe (z. B. 100 % -> 108 %)
+  //   Kosten = Mehrertrag der Stufe (€/Min.) x Amortisationszeit; die Zeit steigt pro Stufe (2,5 h ... 40 h)
+  contractUp: { qty: { per: 0.20, max: 5, pay: [150, 300, 600, 1200, 2400] }, price: { per: 0.08, max: 5, pay: [150, 300, 600, 1200, 2400] } },
+  // Freischaltungen und Tipps: erscheinen einmalig im Hinweisfeld, sobald "when" wahr wird.
+  // Später hängen hier auch neue Bereiche (Läden, Ereignisse, Branchen) dran.
+  unlocks: [
+    { id: 'tipWelcome', title: 'Willkommen!',
+      text: 'Starte mit Handarbeit: Klicke im Wasserwerk und auf dem Bauernhof auf „Produzieren“, verkaufe die Ware im Markt und kaufe vom Geld neue Anlagen.',
+      when: function () { return state.totalEarned < 1; } },
+    { id: 'tipStorage', title: 'Lager voll!',
+      text: 'Ist das Lager einer Ware voll, pausiert deren Produktion. Verkaufe die Ware oder baue das Lager aus.',
+      when: function () {
+        return Object.keys(DATA.goods).some(function (g) { return state.inv[g] >= capacity(g) - 1e-6; });
+      } },
+    { id: 'tipManager', title: 'Dein erster Manager!',
+      text: 'Er startet sein Gebäude immer wieder von selbst. Tipp: Mit einem Händler verkaufst du die Ware dann auch automatisch.',
+      when: function () {
+        return DATA.buildings.some(function (b) { return state.b[b.id].manager; });
+      } },
+    { id: 'tipMillTab', title: 'Neu: Mühle!', quietOnLoad: true,
+      text: 'Getreide ist als Mehl mehr wert. In der Mühle wird es gemahlen. Sie holt sich ihr Getreide automatisch aus dem Lager vom Bauernhof.',
+      when: function () { return state.totalEarned >= 100; } },
+    { id: 'tipBakeryTab', title: 'Neu: Bäckerei!', quietOnLoad: true,
+      text: 'Die Bäckerei backt nur: Mehl aus der Mühle und Wasser aus dem Wasserwerk holt sie sich automatisch aus dem Lager. Dein Brot verkaufst du hier, später auch über eigene Läden.',
+      when: function () { return state.b.mill.count >= 1; } },
+    { id: 'tipBranches', title: 'Neu: Neue Branche!', quietOnLoad: true,
+      text: 'Deine Bäckerei läuft. Im Tab „Neue Branche“ kannst du gegen eine Gründungsgebühr einen weiteren Geschäftszweig eröffnen, mit eigenen Betrieben, Läden und Kunden.',
+      when: function () { return state.totalEarned >= 20000; } },
+    { id: 'tipBookkeeping', title: 'Neu: Buchhaltung!',
+      text: 'Oben rechts im Büro kannst du jetzt die Buchhaltung kaufen. Sie zeigt dir pro Ware, ob du mehr herstellst oder abziehst, als dein Betrieb hergibt.',
+      when: function () { return state.totalEarned >= 150; } },
+    { id: 'tipShops', title: 'Neu: Läden!',
+      text: 'Mit deiner automatisierten Backstube kannst du jetzt im neuen Tab „Läden“ einen eigenen Laden eröffnen. Du legst den Preis selbst fest: Zu teuer, und die Kunden bleiben weg. Zu billig, und du verschenkst Geld.',
+      when: function () { return state.b.bakery.manager; } },
+    { id: 'tipQuality', title: 'Neu: Qualität!',
+      text: 'Im neuen Tab „Qualität“ siehst du, wie viel Erfahrung deine Waren schon gesammelt haben. Ist der Balken voll, kannst du sie gegen Geld aufwerten. Bessere Ware ist mehr wert, aber ein Produkt ist immer nur so gut wie seine schwächste Zutat.',
+      when: function () {
+        return DATA.shops.some(function (sh) { return state.shops[sh.id].level > 0; });
+      } },
+    { id: 'tipContracts', title: 'Neu: Lieferverträge!',
+      text: 'Dein Brot hat jetzt einen Ruf: Im neuen Tab „Verträge“ kannst du Verträge mit festen Abnehmern abschließen. Sie zahlen einen stabilen Preis ohne Marktschwankungen und entlasten deine Markthändler. Bessere Qualität schaltet weitere Kunden frei.',
+      when: function () { return state.star.bread >= 2; } },
+    { id: 'tipOrders', title: 'Neu: Aufträge!',
+      text: 'Kunden melden sich jetzt mit Sonderaufträgen: eine bestimmte Menge einer Ware in der gewünschten Qualität, bis zu einer Frist, zu einem Aufschlag auf den Normalpreis. Du lieferst sie im neuen Tab „Aufträge“ aus dem Lager. Läuft die Frist ab, verfällt der Auftrag ohne Strafe.',
+      when: function () { return state.totalEarned >= 30000 && state.star.bread >= 1; } },
+    { id: 'tipEvents', title: 'Neu: Ereignisse!',
+      text: 'Ab und zu passiert etwas am Markt: ein Nachfrage-Boom, ein Preissturz, ein Festtag oder ein Großabnehmer. Oben im Spiel siehst du, was gerade läuft und wie lange. Wer schlau reagiert, verdient mehr.',
+      when: function () { return state.totalEarned >= 60000; } },
+    { id: 'tipExchange', title: 'Neu: Börse!', quietOnLoad: true,
+      text: 'Im neuen Tab „Börse“ siehst du alle Waren auf einen Blick: Preisverlauf, Lager, was wirklich verkauft wird und wie viel der Markt aufnimmt. Dort stellst du auch Mindestpreis und Reserve deiner Händler ein.',
+      when: function () { return state.totalEarned >= 10000; } },
+    { id: 'tipResearch', title: 'Neu: Forschung!',
+      text: 'Deine Forschungspunkte kannst du jetzt auch in dauerhafte Verbesserungen stecken, zum Beispiel schnellere Abläufe, höhere Ladenpreise oder bessere Vertragspreise. Alles im neuen Tab „Forschung“. Jede Stufe kostet Punkte und Geld.',
+      when: function () { return isUnlocked('tipLab') && state.rp >= 15; } },
+    { id: 'tipLab', title: 'Neu: Labor!',
+      text: 'Jede Aufwertung braucht jetzt auch Forschungspunkte. Die erzeugt das Labor oben im Tab „Qualität“. Sie lassen sich nicht verkaufen und nicht mit Geld kaufen, also teile sie dir gut ein.',
+      when: function () { return isUnlocked('tipQuality'); } }
+  ],
+  buildings: [
+    { id: 'well',   industry: 'water', name: 'Brunnen',      icon: '⛲',
+      inputs: {},                      outputs: { water: 1 }, time: 2, cost: 15,  managerCost: 120 },
+    { id: 'field',  industry: 'farm', name: 'Getreidefeld', icon: '🌾',
+      inputs: {},                      outputs: { wheat: 1 }, time: 3, cost: 30,  managerCost: 250 },
+    { id: 'mill',   industry: 'mill', name: 'Mühle',        icon: '⚙️',
+      inputs: { wheat: 2 },            outputs: { flour: 1 }, time: 4, cost: 120, managerCost: 700 },
+    { id: 'bakery', industry: 'bakery', name: 'Backstube',    icon: '🥖',
+      inputs: { flour: 2, water: 1 },  outputs: { bread: 2 }, time: 6, cost: 300, managerCost: 1600 },
+    // Brauerei-Branche (siehe DATA.branches); "unlock" blendet das Gebäude erst nach der Gründung ein
+    { id: 'barleyfield', industry: 'farm', name: 'Gerstenfeld', icon: '🌱', unlock: 'branchBrewery',
+      inputs: {},                                outputs: { barley: 1 }, time: 3, cost: 500,  managerCost: 3000 },
+    { id: 'hopfarm', industry: 'hops', name: 'Hopfengarten', icon: '🌿',
+      inputs: {},                                outputs: { hops: 1 },   time: 5, cost: 1200, managerCost: 7000 },
+    { id: 'maltery', industry: 'malt', name: 'Mälzerei', icon: '🏭',
+      inputs: { barley: 2 },                     outputs: { malt: 1 },   time: 5, cost: 3000, managerCost: 18000 },
+    { id: 'brewhouse', industry: 'brewery', name: 'Brauerei', icon: '🍺',
+      inputs: { malt: 2, hops: 1, water: 2 },    outputs: { beer: 4 },   time: 8, cost: 8000, managerCost: 45000 },
+    // Hofwirtschaft-Branche (siehe DATA.branches)
+    { id: 'pasture', industry: 'farm', name: 'Weide', icon: '🍀', unlock: 'branchFarm',
+      inputs: {},                                outputs: { grass: 1 },  time: 3,  cost: 2500,  managerCost: 15000 },
+    { id: 'cowshed', industry: 'livestock', name: 'Kuhstall', icon: '🐄', unlock: 'branchFarm',
+      inputs: { grass: 3, wheat: 1, water: 2 },  outputs: { milk: 4 },   time: 10, cost: 8000,  managerCost: 45000 },
+    { id: 'henhouse', industry: 'livestock', name: 'Hühnerhof', icon: '🐔', unlock: 'branchFarm',
+      inputs: { wheat: 3, water: 1 },            outputs: { eggs: 2 },   time: 6,  cost: 6000,  managerCost: 35000 },
+    { id: 'pigsty', industry: 'livestock', name: 'Schweinemast', icon: '🐖', unlock: 'branchFarm',
+      inputs: { grass: 2, wheat: 3, water: 3 },  outputs: { pig: 1 },    time: 12, cost: 10000, managerCost: 60000 },
+    { id: 'butterery', industry: 'dairy', name: 'Butterei', icon: '🧈', unlock: 'branchFarm',
+      inputs: { milk: 4 },                       outputs: { butter: 1 }, time: 5,  cost: 15000, managerCost: 90000 },
+    { id: 'cheesery', industry: 'dairy', name: 'Käserei', icon: '🧀', unlock: 'branchFarm',
+      inputs: { milk: 6 },                       outputs: { cheese: 1 }, time: 10, cost: 20000, managerCost: 120000 },
+    { id: 'cattleshed', industry: 'livestock', name: 'Rindermast', icon: '🐂', unlock: 'branchFarm',
+      inputs: { grass: 5, wheat: 3, water: 4 },  outputs: { cow: 1 },    time: 16, cost: 14000, managerCost: 80000 },
+    { id: 'sheepshed', industry: 'livestock', name: 'Schafstall (Schur)', icon: '🐑', unlock: 'branchFarm',
+      inputs: { grass: 4, water: 1 },            outputs: { wool: 2 },   time: 8,  cost: 7000,  managerCost: 40000 },
+    { id: 'lambfold', industry: 'livestock', name: 'Lämmermast', icon: '🐏', unlock: 'branchFarm',
+      inputs: { grass: 3, wheat: 1, water: 2 },  outputs: { lamb: 1 },   time: 10, cost: 9000,  managerCost: 50000 },
+    { id: 'abattoir', industry: 'slaughter', name: 'Schweineschlachtung', icon: '🥩', unlock: 'branchFarm',
+      inputs: { pig: 1 },                        outputs: { meat: 3 },   time: 6,  cost: 25000, managerCost: 150000 },
+    { id: 'beefline', industry: 'slaughter', name: 'Rinderschlachtung', icon: '🥩', unlock: 'branchFarm',
+      inputs: { cow: 1 },                        outputs: { meat: 5 },   time: 8,  cost: 30000, managerCost: 180000 },
+    { id: 'lambline', industry: 'slaughter', name: 'Lammschlachtung', icon: '🥩', unlock: 'branchFarm',
+      inputs: { lamb: 1 },                       outputs: { meat: 2 },   time: 5,  cost: 20000, managerCost: 120000 },
+    { id: 'sausagery', industry: 'butcher', name: 'Wurstküche', icon: '🌭', unlock: 'branchFarm',
+      inputs: { meat: 3, water: 1 },             outputs: { sausage: 3 }, time: 8, cost: 30000, managerCost: 180000 }
+  ]
+};
+
+var COST_GROWTH = 1.15;      // Preisanstieg pro gekaufter Anlage
+var COST_GROWTH_LATE = 1.05; // ab COST_SOFT_CAP Anlagen steigt der Preis nur noch so stark pro Anlage
+var COST_SOFT_CAP = 50;
+var SAVE_KEY = 'wirtschaftsimperium_v1';
+var MAX_OFFLINE = 8 * 3600;  // maximal 8 Stunden Offline-Fortschritt
+var HIST_MAX = 180, HIST_EVERY = 5;   // Preisverlauf: 180 Punkte im Abstand von 5 s (= 15 Min.)
+
+/* ============================================================
+   HILFSFUNKTIONEN
+   ============================================================ */
+function $(sel, root) { return (root || document).querySelector(sel); }
+function el(tag, cls, html) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html != null) e.innerHTML = html;
+  return e;
+}
+var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+var nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+var nf1 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+function fmt(n) {
+  if (n >= 1e9) return nf1.format(n / 1e9) + ' Mrd.';
+  if (n >= 1e6) return nf2.format(n / 1e6) + ' Mio.';
+  return nf0.format(Math.floor(n));
+}
+function money(n) { return (n < 1000 ? nf2.format(n) : fmt(n)) + ' €'; }
+function setText(e, t) { if (e.textContent !== t) e.textContent = t; }
+function goodsText(o) {
+  return Object.keys(o).map(function (g) {
+    return o[g] + ' ' + DATA.goods[g].icon + ' ' + DATA.goods[g].name;
+  }).join(' + ');
+}
+
+/* ============================================================
+   SPIELZUSTAND
+   ============================================================ */
+function defaultState() {
+  var s = { money: 30, inv: {}, b: {}, market: {}, sellers: {}, storage: {}, unlocked: {}, perks: {}, shops: {}, contracts: {}, research: {},
+            star: {}, xp: {}, master: {}, qual: {}, lots: {}, rp: 0, pressure: {}, minPct: {}, reserve: {}, hist: {},
+            lab: { count: 0, manager: false, running: false, batch: 0, progress: 0 },
+            totalEarned: 0, savedAt: Date.now(),
+            orders: { list: [], timer: 60, done: 0, earned: 0, nextId: 1 }, events: { active: [], timer: 600, nextId: 1 } };
+  Object.keys(DATA.goods).forEach(function (g) {
+    s.inv[g] = 0; s.market[g] = 1; s.sellers[g] = 0; s.storage[g] = 0;
+    s.star[g] = 0; s.xp[g] = 0; s.master[g] = 0; s.qual[g] = 0; s.lots[g] = [];
+    s.pressure[g] = 1; s.minPct[g] = DATA.market.minPct.def; s.reserve[g] = 0; s.hist[g] = [];
+  });
+  DATA.buildings.forEach(function (b) {
+    s.b[b.id] = { count: 0, manager: false, running: false, batch: 0, progress: 0, q: {} };
+  });
+  DATA.perks.forEach(function (p) { s.perks[p.id] = false; });
+  DATA.shops.forEach(function (sh) {
+    s.shops[sh.id] = { level: 0, price: defaultShopPrice(sh), acc: 0, manager: false, mt: 0 };
+  });
+  DATA.contracts.forEach(function (c) {
+    s.contracts[c.id] = { signed: false, paused: false, acc: 0, qLv: 0, pLv: 0 };
+  });
+  DATA.research.forEach(function (p) { s.research[p.id] = 0; });
+  return s;
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    var s = JSON.parse(raw), d = defaultState();
+    if (typeof s.money === 'number') d.money = s.money;
+    if (typeof s.totalEarned === 'number') d.totalEarned = s.totalEarned;
+    if (typeof s.savedAt === 'number') d.savedAt = s.savedAt;
+    if (s.unlocked && typeof s.unlocked === 'object') d.unlocked = s.unlocked;
+    if (typeof s.rp === 'number' && s.rp >= 0) d.rp = s.rp;
+    if (s.lab && typeof s.lab === 'object') {
+      d.lab.count = s.lab.count | 0;
+      d.lab.manager = !!s.lab.manager;
+      d.lab.running = !!s.lab.running;
+      d.lab.batch = s.lab.batch | 0;
+      d.lab.progress = +s.lab.progress || 0;
+    }
+    DATA.perks.forEach(function (p) { d.perks[p.id] = !!(s.perks && s.perks[p.id]); });
+    DATA.shops.forEach(function (sh) {
+      var o = s.shops && s.shops[sh.id];
+      if (o) {
+        d.shops[sh.id].level = o.level | 0;
+        d.shops[sh.id].manager = !!o.manager;
+        if (typeof o.price === 'number' && o.price > 0) d.shops[sh.id].price = o.price;
+      }
+    });
+    DATA.research.forEach(function (p) {
+      var v = s.research && s.research[p.id];
+      if (typeof v === 'number') d.research[p.id] = Math.max(0, Math.min(p.rp.length, v | 0));
+    });
+    DATA.contracts.forEach(function (c) {
+      var o = s.contracts && s.contracts[c.id];
+      if (o) { d.contracts[c.id].signed = !!o.signed; d.contracts[c.id].paused = !!o.paused;
+        d.contracts[c.id].qLv = Math.max(0, Math.min(DATA.contractUp.qty.max, o.qLv | 0));
+        d.contracts[c.id].pLv = Math.max(0, Math.min(DATA.contractUp.price.max, o.pLv | 0)); }
+    });
+    Object.keys(DATA.goods).forEach(function (g) {
+      if (s.storage && typeof s.storage[g] === 'number') d.storage[g] = s.storage[g];
+      if (s.inv && typeof s.inv[g] === 'number') d.inv[g] = Math.min(s.inv[g], capacity(g, d));
+      if (s.market && typeof s.market[g] === 'number') d.market[g] = s.market[g];
+      if (s.sellers && typeof s.sellers[g] === 'number') d.sellers[g] = s.sellers[g];
+      var MP = DATA.market.minPct;
+      if (s.pressure && typeof s.pressure[g] === 'number') d.pressure[g] = Math.max(DATA.market.pressureMin, Math.min(1, s.pressure[g]));
+      if (s.hist && Array.isArray(s.hist[g])) d.hist[g] = s.hist[g].filter(function (v) { return typeof v === 'number' && isFinite(v); }).slice(-HIST_MAX);
+      if (s.reserve && typeof s.reserve[g] === 'number') d.reserve[g] = Math.max(0, Math.min(DATA.market.reserve.max, s.reserve[g]));
+      if (s.minPct && typeof s.minPct[g] === 'number') d.minPct[g] = Math.max(MP.lo, Math.min(MP.hi, s.minPct[g]));
+      var Qm = DATA.quality.maxStar;
+      if (s.star && typeof s.star[g] === 'number') d.star[g] = Math.max(0, Math.min(Qm, s.star[g] | 0));
+      if (s.xp && typeof s.xp[g] === 'number') d.xp[g] = Math.max(0, s.xp[g]);
+      if (s.master && typeof s.master[g] === 'number') d.master[g] = Math.max(0, s.master[g]);
+      if (s.qual && typeof s.qual[g] === 'number') d.qual[g] = Math.max(0, Math.min(Qm, s.qual[g]));
+      // Lager-Chargen (Erst-Rein-Erst-Raus): alte Spielstände ohne Chargen starten mit einer einzigen Charge
+      var L = [];
+      if (s.lots && Array.isArray(s.lots[g])) s.lots[g].forEach(function (l) {
+        if (l && typeof l.n === 'number' && typeof l.q === 'number' && l.n > 0 && isFinite(l.n) && isFinite(l.q)) L.push({ n: l.n, q: Math.max(0, Math.min(Qm, l.q)) });
+      });
+      var sum = 0; L.forEach(function (l) { sum += l.n; });
+      var invG = d.inv[g];
+      while (L.length && sum > invG + 1e-9) {                       // zu viel (z. B. Lager kleiner geworden): neueste Ware zuerst streichen
+        var last = L[L.length - 1], cut = Math.min(last.n, sum - invG);
+        last.n -= cut; sum -= cut; if (last.n <= 1e-9) L.pop();
+      }
+      if (sum < invG - 1e-9) L.push({ n: invG - sum, q: d.qual[g] });
+      d.lots[g] = L;
+      if (L.length) d.qual[g] = L[0].q;
+    });
+    if (s.orders && typeof s.orders === 'object') {
+      var so = s.orders;
+      d.orders.done = Math.max(0, so.done | 0); d.orders.earned = Math.max(0, +so.earned || 0);
+      d.orders.timer = typeof so.timer === 'number' ? Math.max(0, so.timer) : d.orders.timer;
+      d.orders.nextId = Math.max(1, so.nextId | 0);
+      (Array.isArray(so.list) ? so.list : []).forEach(function (o) {
+        if (o && DATA.goods[o.good] && o.qty > 0 && o.unit > 0 && o.left > 0)
+          d.orders.list.push({ id: o.id | 0, good: o.good, qty: o.qty | 0, minStar: o.minStar | 0, unit: +o.unit, left: +o.left,
+                               who: String(o.who || 'Kunde').slice(0, 40), kind: o.kind === 'buyer' ? 'buyer' : 'normal' });
+      });
+    }
+    if (s.events && typeof s.events === 'object') {
+      var se = s.events;
+      d.events.timer = typeof se.timer === 'number' ? Math.max(0, se.timer) : d.events.timer;
+      d.events.nextId = Math.max(1, se.nextId | 0);
+      (Array.isArray(se.active) ? se.active : []).forEach(function (e) {
+        if (e && (e.type === 'festival' || DATA.goods[e.good]) && e.left > 0 && e.mult > 0 && e.mult < 5)
+          d.events.active.push({ id: e.id | 0, type: String(e.type), good: e.good || null, mult: +e.mult, left: +e.left, total: +e.total || +e.left });
+      });
+    }
+    DATA.buildings.forEach(function (b) {
+      var o = s.b && s.b[b.id];
+      if (o) {
+        d.b[b.id].count = o.count | 0;
+        d.b[b.id].manager = !!o.manager;
+        d.b[b.id].running = !!o.running;
+        d.b[b.id].batch = o.batch | 0;
+        d.b[b.id].progress = +o.progress || 0;
+        if (o.q && typeof o.q === 'object') d.b[b.id].q = o.q;
+      }
+    });
+    return d;
+  } catch (e) { return null; }
+}
+var noSave = false;
+function save() {
+  if (noSave) return;
+  try {
+    state.savedAt = Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  } catch (e) { /* Speichern nicht möglich – Spiel läuft trotzdem */ }
+}
+
+var loadedState = load();
+var state = loadedState || defaultState();
+var fromSave = !!loadedState;           // true: es gab schon einen Spielstand (dann Tab-Freischaltungen ohne Hinweis)
+var firstUnlockPass = true;
+var currentIndustry = Object.keys(DATA.industries)[0];
+var recent = [];            // Verkäufe der letzten 60 s (für "Einnahmen / Min.")
+var catchingUp = false;
+var sellAcc = {};
+var cstat = {};             // Lieferstatus pro Vertrag: 'ok', 'empty', 'quality' (nur Anzeige, wird nicht gespeichert)
+var lastTrend = {};         // Richtung der letzten Preisrunde pro Ware (1 = hoch, -1 = runter)
+var marketTimer = 0;
+/* Börse: gemessene Verkäufe (gleitender Wert pro Minute, wird nicht gespeichert) */
+var xstat = {}, xacc = {}, xage = 0, histTimer = 0;
+Object.keys(DATA.goods).forEach(function (g) {
+  xstat[g] = { dP: 0, dR: 0, sP: 0, sR: 0, cP: 0, cR: 0 };
+  xacc[g]  = { dP: 0, dR: 0, sP: 0, sR: 0, cP: 0, cR: 0 };
+});
+function noteSale(g, ch, pcs, rev) { var a = xacc[g]; a[ch + 'P'] += pcs; a[ch + 'R'] += rev; }   // ch: d = Händler, s = Läden, c = Verträge
+function updateStats(dt) {
+  xage = Math.min(600, xage + dt);
+  var k = dt / Math.min(60, Math.max(xage, 10));              // anfangs Durchschnitt seit Start, dann gleitend über ~1 Min.
+  Object.keys(xstat).forEach(function (g) {
+    var st = xstat[g], ac = xacc[g];
+    Object.keys(st).forEach(function (key) { st[key] += (ac[key] / dt * 60 - st[key]) * k; ac[key] = 0; });
+  });
+  histTimer += dt;
+  while (histTimer >= HIST_EVERY) {
+    histTimer -= HIST_EVERY;
+    Object.keys(DATA.goods).forEach(function (g) {
+      var h = state.hist[g];
+      h.push(Math.round(marketFactor(g) * 1000));
+      if (h.length > HIST_MAX) h.shift();
+    });
+  }
+}
+var currentView = 'industry';   // 'industry' oder 'quality'
+var tabsQuality = false;        // ob der Qualität-Tab schon angezeigt wird
+var tabsContracts = false;      // ob der Verträge-Tab schon angezeigt wird
+var tabsShops = false;          // ob der Läden-Tab schon angezeigt wird
+var tabsResearch = false;       // ob der Forschung-Tab schon angezeigt wird
+var tabsOrders = false, ordersNavBtn = null, ordersNavKey = '';
+var tabsExchange = false;       // ob der Börse-Tab schon angezeigt wird
+var tabsBranches = false;       // ob der Branchen-Tab schon freigeschaltet ist
+var tabsIndustryKey = '';       // welche Betriebs-Tabs gerade angezeigt werden
+function industryKey() {
+  return Object.keys(DATA.industries).filter(function (id) {
+    var u = DATA.industries[id].unlock; return !u || isUnlocked(u);
+  }).join(',');
+}
+function lastIndustry() {
+  var ids = industryKey().split(',');
+  return ids[ids.length - 1];
+}
+function shopsAvailable() {
+  return isUnlocked('tipShops') || DATA.shops.some(function (sh) { return state.shops[sh.id].level > 0; });
+}
+
+/* ============================================================
+   ENGINE
+   ============================================================ */
+/* Forschung */
+function researchById(id) { return DATA.research.filter(function (x) { return x.id === id; })[0]; }
+function rlevel(id) { return state.research[id] || 0; }
+function rbonus(id) { var p = researchById(id); return rlevel(id) * p.per; }          // z. B. 0,15 bei Stufe 3 von +5 %
+// Ertragsforschung: Rohstoffgebäude liefern pro Durchlauf mehr (Faktor auf jede Ausbringung)
+function outMul(b) {
+  var m = 1;
+  DATA.research.forEach(function (p) {
+    if (!p.goods) return;
+    var hit = Object.keys(b.outputs).some(function (g) { return p.goods.indexOf(g) >= 0; });
+    if (hit) m += rbonus(p.id);
+  });
+  return m;
+}
+function buildingTime(b) {
+  var p = researchById('speed');
+  return (!p.industry || p.industry === b.industry) ? b.time / (1 + rbonus('speed')) : b.time;   // ohne "industry": alle Betriebe
+}
+function recoverRate() { return DATA.market.recover * (1 + rbonus('recover')); }
+function researchNext(p) {
+  var l = rlevel(p.id);
+  if (l >= p.rp.length) return null;
+  return { level: l + 1, rp: p.rp[l], money: p.money[l] };
+}
+function buyResearch(id) {
+  var p = researchById(id), n = p && researchNext(p);
+  if (!n || state.money < n.money || state.rp < n.rp) return false;
+  state.money -= n.money; state.rp -= n.rp; state.research[id] = n.level;
+  return true;
+}
+/* Branchen */
+function branchById(id) { return DATA.branches.filter(function (x) { return x.id === id; })[0]; }
+function branchReady(br) { return !br.need || state.star[br.need.good] >= br.need.star; }
+function foundBranch(id) {
+  var br = branchById(id);
+  if (!br || isUnlocked(br.unlock) || !branchReady(br) || state.money < br.cost) return false;
+  state.money -= br.cost;
+  state.unlocked[br.unlock] = true;
+  notices.push({ title: 'Neu: ' + br.name + '!', text: br.text });
+  if ($('#notice').hidden) showNotice();
+  return true;
+}
+function buildingVisible(b) { return !b.unlock || isUnlocked(b.unlock); }
+function goodVisible(g) {
+  var p = producerOf(g), u = p && DATA.industries[p.industry].unlock;
+  return !u || isUnlocked(u);
+}
+function buildingCost(b) {
+  var n = state.b[b.id].count;
+  return Math.ceil(b.cost * Math.pow(COST_GROWTH, Math.min(n, COST_SOFT_CAP)) * Math.pow(COST_GROWTH_LATE, Math.max(0, n - COST_SOFT_CAP)));
+}
+function sellerCost(g) {
+  return Math.ceil(40 * DATA.goods[g].base * Math.pow(1.8, state.sellers[g]));
+}
+function eventMult(g) {
+  var m = 1;
+  state.events.active.forEach(function (e) { if ((e.type === 'boom' || e.type === 'slump') && e.good === g) m *= e.mult; });
+  return m;
+}
+function eventShopMult() {
+  var m = 1;
+  state.events.active.forEach(function (e) { if (e.type === 'festival') m *= e.mult; });
+  return m;
+}
+function marketFactor(g) { return state.market[g] * eventMult(g) * state.pressure[g]; }   // Marktlage x Ereignis x Verkaufsdruck
+function price(g) { return DATA.goods[g].base * valueMult(g) * marketFactor(g); }
+// Lager-Reserve: So viele Stück (Anteil der Lagergröße) lässt der Händler im Lager liegen. Nur der Händler beachtet sie.
+function reserveUnits(g) { return Math.floor(capacity(g) * (state.reserve[g] || 0) / 100); }
+function changeReserve(g, steps) {
+  var R = DATA.market.reserve;
+  state.reserve[g] = Math.max(0, Math.min(R.max, Math.round((state.reserve[g] || 0) / R.step + steps) * R.step));
+}
+function changeMinPct(g, steps) {
+  var MP = DATA.market.minPct;
+  state.minPct[g] = Math.max(MP.lo, Math.min(MP.hi, Math.round(state.minPct[g] / MP.step + steps) * MP.step));
+}
+
+function capacity(g, st) {
+  st = st || state;
+  return Math.round(DATA.storage.base * Math.pow(DATA.storage.growth, st.storage[g]));
+}
+function storageCost(g) {
+  return Math.ceil(DATA.storage.cost * (1 + DATA.goods[g].base / 3) *
+    Math.pow(DATA.storage.costGrowth, state.storage[g]));
+}
+function buyStorage(g) {
+  var c = storageCost(g);
+  if (state.money < c) return false;
+  state.money -= c; state.storage[g]++;
+  return true;
+}
+function buyPerk(id) {
+  var p = DATA.perks.filter(function (x) { return x.id === id; })[0];
+  if (!p || state.perks[id] || state.money < p.cost) return false;
+  state.money -= p.cost; state.perks[id] = true;
+  return true;
+}
+
+/* Läden */
+function defaultShopPrice(sh) {
+  return Math.round(DATA.goods[sh.good].base * sh.retail / sh.priceStep) * sh.priceStep;
+}
+function shopById(id) { return DATA.shops.filter(function (x) { return x.id === id; })[0]; }
+// Richtpreis: bei diesem Preis ist die Nachfrage genau der Grundwert (folgt etwas dem Marktpreis)
+function shopRef(sh) {
+  return DATA.goods[sh.good].base * sh.retail * (0.7 + 0.3 * state.market[sh.good]) * valueMult(sh.good) * (1 + rbonus('brand'));
+}
+function shopRates(sh) {
+  var s = state.shops[sh.id];
+  var x = s.price / shopRef(sh);
+  var factor = Math.max(0, Math.min(2.5, 1 + (1 - x) * sh.sensitivity));
+  var demand = sh.demand * s.level * factor * (1 + rbonus('shopcap')) * eventShopMult();
+  var capacity = sh.capacity * s.level * (1 + rbonus('shopcap'));
+  return { demand: demand, capacity: capacity, flow: Math.min(demand, capacity) };
+}
+function shopCost(sh) {
+  return Math.ceil(sh.cost * Math.pow(sh.costGrowth, state.shops[sh.id].level));
+}
+function buyShop(id) {
+  var sh = shopById(id), c = shopCost(sh);
+  if (state.money < c) return false;
+  state.money -= c; state.shops[id].level++;
+  return true;
+}
+function shopLimits(sh) {
+  return { lo: DATA.goods[sh.good].base * 0.5,
+           hi: DATA.goods[sh.good].base * 4 * (1 + DATA.quality.bonus[DATA.quality.maxStar]) };
+}
+// Bester Preis für den Umsatz: der höchste Preis, bei dem die Nachfrage noch für die volle Kapazität reicht
+// (oder, wenn die Kapazität nie ausgelastet wäre, der Preis mit dem größten Umsatz), auf die Preisstufe gerundet.
+function shopBestPrice(sh) {
+  var ref = shopRef(sh), L = shopLimits(sh), st = sh.priceStep;
+  var f = sh.capacity / sh.demand;
+  var pCap = (1 + (1 - f) / sh.sensitivity) * ref;
+  var pOpt = ref * (1 + sh.sensitivity) / (2 * sh.sensitivity);
+  var p = Math.max(pCap, pOpt);
+  function rev(x) {
+    var fa = Math.max(0, Math.min(2.5, 1 + (1 - x / ref) * sh.sensitivity));
+    return Math.min(sh.demand * fa, sh.capacity) * x;
+  }
+  var a = Math.floor(p / st) * st, b = a + st;
+  var best = rev(b) > rev(a) ? b : a;
+  return Math.min(L.hi, Math.max(L.lo, Math.round(best * 100) / 100));
+}
+function buyShopManager(id) {
+  var sh = shopById(id), s = state.shops[id];
+  if (!sh || s.manager || s.level < 1 || state.money < sh.managerCost) return false;
+  state.money -= sh.managerCost; s.manager = true; s.mt = 1;
+  s.price = shopBestPrice(sh);
+  return true;
+}
+function changeShopPrice(id, steps) {
+  var sh = shopById(id), s = state.shops[id];
+  if (s.manager) return;
+  var L = shopLimits(sh), lo = L.lo, hi = L.hi;
+  var p = Math.round((s.price + steps * sh.priceStep) / sh.priceStep) * sh.priceStep;
+  s.price = Math.min(hi, Math.max(lo, Math.round(p * 100) / 100));
+}
+
+/* Qualität: Ein Produkt ist so gut wie das Schwächste aus seiner eigenen Stufe und der Qualität
+   seiner Zutaten. Im Lager gilt die Durchschnittsqualität (state.qual). */
+function qBonus(q) {
+  var Q = DATA.quality, lo = Math.floor(q + 1e-9);
+  if (lo >= Q.maxStar) return Q.bonus[Q.maxStar];
+  var f = Math.max(0, q - lo);
+  return Q.bonus[lo] + (Q.bonus[lo + 1] - Q.bonus[lo]) * f;
+}
+function valueMult(g) { return 1 + qBonus(state.qual[g]); }
+function producerOf(g) {
+  return DATA.buildings.filter(function (b) { return b.outputs[g] != null; })[0] || null;
+}
+/* Lager-Qualität ist ein Durchschnitt und nähert sich einer ganzen Stufe nur an (4,97 → 5). Wer ★5,0 anzeigt, gilt als ★5. */
+function qualEff(q) { var r = Math.round(q); return Math.abs(q - r) < 0.05 ? r : q; }
+function outputQuality(b, g) {
+  var q = state.star[g];
+  Object.keys(b.inputs).forEach(function (i) { q = Math.min(q, qualEff(state.qual[i])); });
+  return q;
+}
+/* Lager nach Erst-Rein-Erst-Raus: Jede Lieferung ist eine Charge (Menge n, Qualität q). Verkauft und verbraucht wird immer
+   die älteste Charge zuerst. state.qual[g] ist die Qualität der ältesten Charge, also der Ware, die als Nächstes rausgeht. */
+function addToStock(g, amount, q) {
+  var room = Math.max(0, capacity(g) - state.inv[g]);
+  var add = Math.min(amount, room);
+  if (add <= 0) return;
+  var L = state.lots[g], last = L[L.length - 1];
+  if (last && Math.abs(last.q - q) < 1e-6) last.n += add;
+  else {
+    L.push({ n: add, q: q });
+    if (L.length > 40) { L[1].n += L[0].n; L.shift(); }              // Liste kurz halten: die zwei ältesten verschmelzen
+  }
+  state.inv[g] += add;
+  state.qual[g] = L[0].q;
+}
+// Nimmt k Stück aus dem Lager (älteste zuerst). Gibt die Durchschnittsqualität der entnommenen Ware zurück.
+function removeStock(g, k) {
+  var L = state.lots[g], got = 0, qsum = 0, need = k;
+  while (need > 1e-9 && L.length) {
+    var l = L[0], t = Math.min(l.n, need);
+    got += t; qsum += t * l.q; l.n -= t; need -= t;
+    if (l.n <= 1e-9) L.shift();
+  }
+  if (need > 1e-9) { got += need; qsum += need * state.qual[g]; }     // Sicherheitsnetz, falls Chargen und Bestand auseinanderlaufen
+  state.inv[g] = Math.max(0, state.inv[g] - k);
+  if (L.length) state.qual[g] = L[0].q;
+  return got > 0 ? qsum / got : state.qual[g];
+}
+// Qualität der Ware im Lager im Schnitt (Anzeige) und Qualität der nächsten Stücke beim Verkauf
+function stockAvgQual(g) {
+  var L = state.lots[g], t = 0, qs = 0;
+  L.forEach(function (l) { t += l.n; qs += l.n * l.q; });
+  return t > 0 ? qs / t : state.qual[g];
+}
+function qWalker(g) {
+  var L = state.lots[g], i = 0, rem = L.length ? L[0].n : 0, q = L.length ? L[0].q : state.qual[g];
+  return function () {
+    var cur = q; rem -= 1;
+    if (rem < 1e-9 && i + 1 < L.length) { i++; rem = L[i].n; q = L[i].q; }
+    return cur;
+  };
+}
+function grantExperience(g, n, q) {
+  var Q = DATA.quality;
+  if (state.star[g] < Q.maxStar - 1) state.xp[g] += n;               // Erfahrung nur bis Stern 5
+  if (q >= Q.maxStar - 1 - 1e-9) state.master[g] += n;               // Meisterprüfung: nur ★5-Qualität zählt
+}
+function starMoney(g, target) {
+  var Q = DATA.quality;
+  var c = Q.money[target] * Math.sqrt(DATA.goods[g].base / Q.moneyRef) * (1 - rbonus('starcost'));
+  return c < 100 ? Math.round(c) : Math.round(c / 10) * 10;
+}
+function nextStarInfo(g) {
+  var Q = DATA.quality, st = state.star[g];
+  if (st >= Q.maxStar) return { done: true };
+  var t = st + 1, isMaster = (t === Q.maxStar);
+  var need = isMaster ? Q.master : Q.xp[t];
+  var have = isMaster ? state.master[g] : state.xp[g];
+  return { done: false, target: t, isMaster: isMaster, need: need, have: have,
+           ready: have >= need, cost: starMoney(g, t), rp: Q.rp[t] };
+}
+/* Labor: erzeugt Forschungspunkte. Läuft wie ein Gebäude (Anlagen, Manager), hat aber keine Ware. */
+function labAvailable() { return isUnlocked('tipQuality') || state.lab.count > 0 || state.rp > 0; }
+function labRuns() { return 1 + state.lab.count; }
+function labCost() { return Math.ceil(DATA.lab.cost * Math.pow(DATA.lab.costGrowth, state.lab.count)); }
+function startLab() {
+  var l = state.lab;
+  if (l.running) return false;
+  l.running = true; l.batch = labRuns(); l.progress = 0;
+  return true;
+}
+function buyLab() {
+  var c = labCost();
+  if (state.money < c) return false;
+  state.money -= c; state.lab.count++;
+  return true;
+}
+function buyLabManager() {
+  if (state.lab.manager || state.money < DATA.lab.managerCost) return false;
+  state.money -= DATA.lab.managerCost; state.lab.manager = true;
+  startLab();
+  return true;
+}
+
+function upgradeStar(g) {
+  var i = nextStarInfo(g);
+  if (i.done || !i.ready || state.money < i.cost || state.rp < i.rp) return false;
+  state.money -= i.cost;
+  state.rp -= i.rp;
+  state.star[g] = i.target;
+  if (!i.isMaster) state.xp[g] = Math.max(0, state.xp[g] - i.need);   // Überschuss zählt für den nächsten Stern
+  return true;
+}
+
+/* Lieferverträge */
+function contractById(id) { return DATA.contracts.filter(function (x) { return x.id === id; })[0]; }
+function contractLocked(c) { return state.star[c.good] < c.minStar; }
+// Qualität im Lager zählt, wie sie angezeigt wird (eine Nachkommastelle): ★2,96 gilt als ★3,0
+function contractQualityOk(c) { return Math.round(state.qual[c.good] * 10) / 10 >= c.minStar - 1e-9; }
+function ctrQty(c) { return c.qty * (1 + DATA.contractUp.qty.per * (state.contracts[c.id].qLv || 0)); }
+function ctrFactor(c) { return c.factor + DATA.contractUp.price.per * (state.contracts[c.id].pLv || 0); }
+function contractPrice(c) { return DATA.goods[c.good].base * valueMult(c.good) * ctrFactor(c) * (1 + rbonus('contract')); }
+// Kosten der nächsten Upgrade-Stufe (kind: 'qty' oder 'price'); null = Höchststufe
+function contractUpCost(c, kind) {
+  var U = DATA.contractUp[kind], lv = state.contracts[c.id][kind === 'qty' ? 'qLv' : 'pLv'] || 0;
+  if (lv >= U.max) return null;
+  var unit = contractPrice(c), gain = kind === 'qty'
+    ? c.qty * U.per * unit
+    : (unit / ctrFactor(c)) * U.per * ctrQty(c);        // Mehrertrag dieser Stufe in € pro Minute
+  return Math.max(10, Math.round(gain * U.pay[lv] / 10) * 10);
+}
+function upgradeContract(id, kind) {
+  var c = contractById(id), s = state.contracts[id];
+  if (!c || !s.signed) return false;
+  var cost = contractUpCost(c, kind);
+  if (cost == null || state.money < cost) return false;
+  state.money -= cost; s[kind === 'qty' ? 'qLv' : 'pLv'] = (s[kind === 'qty' ? 'qLv' : 'pLv'] || 0) + 1;
+  return true;
+}
+function signContract(id) {
+  var c = contractById(id), s = state.contracts[id];
+  if (!c || s.signed || contractLocked(c) || state.money < c.cost) return false;
+  state.money -= c.cost; s.signed = true; s.paused = false; s.acc = 0;
+  return true;
+}
+function toggleContract(id) {
+  var s = state.contracts[id];
+  if (!s || !s.signed) return false;
+  s.paused = !s.paused;
+  return true;
+}
+// Warenfluss pro Minute bei voller Auslastung. Es zählen nur Gebäude mit Manager (Dauerbetrieb),
+// Läden und Verträge gelten als feste Abnehmer, Händler stehen getrennt (sie verkaufen nur über der Reserve).
+function flows(g) {
+  var prod = 0, cons = 0;
+  DATA.buildings.forEach(function (b) {
+    var s = state.b[b.id];
+    if (!s.manager) return;
+    var runs = (1 + s.count) * 60 / buildingTime(b);
+    if (b.outputs[g]) prod += b.outputs[g] * outMul(b) * runs;
+    if (b.inputs[g]) cons += b.inputs[g] * runs;
+  });
+  // Feste Abnehmer: Läden und Verträge. Händler zählen nicht dazu: Sie verkaufen nur, was über deiner Reserve
+  // liegt und der Preis hergibt, und hören von selbst auf. Deshalb ist die Bilanz "ohne Händler" gerechnet.
+  var shops = 0, ctr = 0;
+  DATA.shops.forEach(function (sh) {
+    if (sh.good === g && state.shops[sh.id].level > 0) shops += shopRates(sh).flow;
+  });
+  DATA.contracts.forEach(function (c) {
+    var cs = state.contracts[c.id];
+    if (c.good === g && cs.signed && !cs.paused) ctr += ctrQty(c);
+  });
+  return { prod: prod, cons: cons, shops: shops, contracts: ctr, dealerCap: state.sellers[g] * 60,
+           net: prod - cons - shops - ctr };
+}
+function balanceHtml(g) {
+  var f = flows(g), st = xstat[g], fixed = f.shops + f.contracts;
+  if (f.prod === 0 && f.cons === 0 && fixed === 0 && f.dealerCap === 0) {
+    return '<span class="mute">Keine automatische Produktion, kein Verbrauch, kein Händler.</span>';
+  }
+  var flat = Math.abs(f.net) < 0.05;
+  var cls = flat ? 'mute' : (f.net > 0 ? 'up' : 'down');
+  var word = flat ? 'ausgeglichen' : (f.net > 0 ? 'Überschuss für Händler' : 'Engpass');
+  var stock = state.inv[g];
+  if (f.net < -0.05 && stock >= 1) {
+    var mins = stock / -f.net;
+    word += ' – Lager reicht noch ' + (mins >= 600 ? 'über ' + nf0.format(Math.floor(mins / 60)) + ' Std.' : '≈ ' + nf0.format(mins) + ' Min.');
+  }
+  var html = 'Herstellung <b>' + nf1.format(f.prod) + '</b> · Verbrauch <b>' + nf1.format(f.cons) + '</b>' +
+    (fixed > 0 ? ' · Läden &amp; Verträge <b>' + nf1.format(fixed) + '</b>' : '') + ' pro Min.<br>' +
+    '<span class="' + cls + '">Bilanz: <b>' + (f.net > 0.05 ? '+' : '') + nf1.format(f.net) +
+    ' / Min.</b> (' + word + ')</span>';
+  if (f.dealerCap > 0) {
+    html += '<br><span class="small mute">Händler (nur über Reserve): bis ' + nf0.format(f.dealerCap) + ' / Min. möglich, zuletzt ' + nf0.format(st.dP) + ' / Min.</span>';
+  }
+  return html;
+}
+
+// Wie viele Ladungen könnte das Gebäude jetzt starten? (Zutaten und Platz im Lager)
+function possibleBatches(b) {
+  var n = 1 + state.b[b.id].count;       // 1 = deine eigene Handarbeit
+  Object.keys(b.inputs).forEach(function (g) {
+    n = Math.min(n, Math.floor(state.inv[g] / b.inputs[g] + 1e-9));
+  });
+  Object.keys(b.outputs).forEach(function (g) {
+    n = Math.min(n, Math.floor((capacity(g) - state.inv[g]) / (b.outputs[g] * outMul(b)) + 1e-9));
+  });
+  return n;
+}
+// Welche Ware ist so voll, dass nicht einmal eine Ladung mehr hineinpasst?
+function fullGood(b) {
+  var full = null;
+  Object.keys(b.outputs).forEach(function (g) {
+    if (!full && state.inv[g] + b.outputs[g] * outMul(b) > capacity(g) + 1e-9) full = g;
+  });
+  return full;
+}
+function missingGood(b) {
+  var miss = null;
+  Object.keys(b.inputs).forEach(function (g) {
+    if (!miss && state.inv[g] < b.inputs[g]) miss = g;
+  });
+  return miss;
+}
+function startCycle(b) {
+  var s = state.b[b.id];
+  if (s.running) return false;
+  var n = possibleBatches(b);
+  if (n < 1) return false;
+  s.q = {};                                                  // Qualität der Ausbringung wird beim Start festgelegt
+  Object.keys(b.outputs).forEach(function (g) { s.q[g] = outputQuality(b, g); });
+  Object.keys(b.inputs).forEach(function (g) { removeStock(g, b.inputs[g] * n); });
+  s.running = true; s.batch = n; s.progress = 0;
+  return true;
+}
+function buyBuilding(id) {
+  var b = DATA.buildings.filter(function (x) { return x.id === id; })[0];
+  var c = buildingCost(b);
+  if (state.money < c) return false;
+  state.money -= c; state.b[id].count++;
+  return true;
+}
+function buyManager(id) {
+  var b = DATA.buildings.filter(function (x) { return x.id === id; })[0];
+  var s = state.b[id];
+  if (s.manager || state.money < b.managerCost) return false;
+  state.money -= b.managerCost; s.manager = true;
+  startCycle(b);
+  return true;
+}
+// Verkauft bis zu "want" Stück am Markt. Jedes Stück senkt den Preis ein Stück weit (Verkaufsdruck).
+// Mit minFactor (Händler) wird gestoppt, sobald die Marktlage x Druck darunter fällt.
+function sell(g, want, minFactor, keep) {
+  var n = Math.min(Math.floor(state.inv[g] - (keep || 0) + 1e-9), Math.floor(want));
+  if (n < 1) return 0;
+  var M = DATA.market, b0 = DATA.goods[g].base, w = state.market[g] * eventMult(g), f = state.pressure[g], walk = qWalker(g);
+  var imp = Math.min(M.impactMax, M.impact * DATA.goods[g].base / M.impactRef);   // Druck pro Stück, nach Warenwert
+  var rev = 0, sold = 0, i;
+  for (i = 0; i < n; i++) {
+    if (minFactor != null && w * f < minFactor - 1e-9) break;
+    rev += b0 * (1 + qBonus(walk())) * w * f; sold++;           // jede Charge zählt mit ihrer eigenen Qualität
+    f = Math.max(M.pressureMin, f * (1 - imp));
+  }
+  if (sold < 1) return 0;
+  state.pressure[g] = f;
+  removeStock(g, sold);
+  state.money += rev;
+  state.totalEarned += rev;
+  if (!catchingUp) recent.push({ t: Date.now(), a: rev });
+  return sold;
+}
+// Händler kündigen: Der zuletzt angeheuerte Händler geht, die Hälfte seiner Anheuer-Kosten kommt zurück
+function fireRefund(g) {
+  if (state.sellers[g] < 1) return 0;
+  return Math.floor(0.5 * Math.ceil(40 * DATA.goods[g].base * Math.pow(1.8, state.sellers[g] - 1)));
+}
+function fireSeller(g) {
+  if (state.sellers[g] < 1) return false;
+  state.money += fireRefund(g); state.sellers[g]--;
+  return true;
+}
+// Voraussichtlicher Erlös für n Stück bei sofortigem Verkauf (ohne etwas zu verändern)
+function sellQuote(g, n) {
+  n = Math.min(Math.floor(state.inv[g] + 1e-9), Math.floor(n));
+  if (!(n >= 1)) return { n: 0, rev: 0 };
+  var M = DATA.market, b0 = DATA.goods[g].base, w = state.market[g] * eventMult(g), f = state.pressure[g], walk = qWalker(g);
+  var imp = Math.min(M.impactMax, M.impact * DATA.goods[g].base / M.impactRef), rev = 0, i;
+  for (i = 0; i < n; i++) { rev += b0 * (1 + qBonus(walk())) * w * f; f = Math.max(M.pressureMin, f * (1 - imp)); }
+  return { n: n, rev: rev };
+}
+function buySeller(g) {
+  var c = sellerCost(g);
+  if (state.money < c) return false;
+  state.money -= c; state.sellers[g]++;
+  return true;
+}
+// Eine Preisrunde: Die Marktlage macht einen Schritt (Rückkehr zum Normalwert + Zufall)
+var marketTrend = {};
+function marketTick() {
+  var M = DATA.market;
+  Object.keys(DATA.goods).forEach(function (g) {
+    var prev = state.market[g], m = prev, v = (DATA.goods[g].vol || 1);
+    // Langsame Welle (Trend über Minuten) + schnelles Rauschen; v = Unruhe der Ware
+    var t = (marketTrend[g] || 0);
+    t += -M.waveRevert * t + (Math.random() - 0.5) * M.waveNoise * v;
+    marketTrend[g] = t;
+    m += (1 + t - m) * M.revert + (Math.random() - 0.5) * M.noise * v;
+    state.market[g] = Math.min(M.max, Math.max(M.min, m));
+    lastTrend[g] = state.market[g] > prev + 1e-9 ? 1 : (state.market[g] < prev - 1e-9 ? -1 : 0);
+  });
+}
+function step(dt) {
+  DATA.buildings.forEach(function (b) {
+    var s = state.b[b.id];
+    if (s.running) {
+      s.progress += dt;
+      var bt = buildingTime(b);
+      if (s.progress >= bt) {
+        var over = s.progress - bt;
+        Object.keys(b.outputs).forEach(function (g) {
+          var made = b.outputs[g] * outMul(b) * s.batch;
+          var q = (s.q && typeof s.q[g] === 'number') ? s.q[g] : 0;
+          addToStock(g, made, q);
+          grantExperience(g, made, q);
+        });
+        s.running = false; s.progress = 0; s.batch = 0;
+        if (s.manager) { startCycle(b); if (s.running) s.progress = Math.min(over, bt * 0.5); }   // Zeitüberschuss zählt für den nächsten Durchlauf
+      }
+    } else if (s.manager) {
+      startCycle(b);
+    }
+  });
+  var lab = state.lab;
+  if (lab.running) {
+    lab.progress += dt;
+    if (lab.progress >= DATA.lab.time) {
+      state.rp += DATA.lab.rp * lab.batch;
+      lab.running = false; lab.progress = 0; lab.batch = 0;
+      if (lab.manager) startLab();
+    }
+  } else if (lab.manager) {
+    startLab();
+  }
+  // Verkaufsdruck erholt sich kontinuierlich
+  Object.keys(DATA.goods).forEach(function (g) {
+    var p = state.pressure[g];
+    if (p < 1) state.pressure[g] = p + (1 - p) * (1 - Math.pow(1 - recoverRate(), dt));
+  });
+  // Läden zuerst (besserer Preis), danach nehmen die Markthändler, was übrig bleibt
+  DATA.shops.forEach(function (sh) {
+    var s = state.shops[sh.id];
+    if (s.level < 1) return;
+    if (s.manager) {
+      s.mt = (s.mt || 0) + dt;
+      if (s.mt >= 1) {
+        s.mt -= 1;
+        var diff = Math.round((shopBestPrice(sh) - s.price) / sh.priceStep);
+        if (diff) s.price = Math.round((s.price + Math.max(-2, Math.min(2, diff)) * sh.priceStep) * 100) / 100;
+      }
+    }
+    s.acc = (s.acc || 0) + shopRates(sh).flow * dt / 60;
+    var n = Math.floor(s.acc);
+    if (n >= 1) {
+      s.acc -= n;                                   // Kunden bei leerem Regal gehen leer aus
+      var k = Math.min(n, Math.floor(state.inv[sh.good] + 1e-9));
+      if (k > 0) {
+        var rev = k * s.price;
+        removeStock(sh.good, k);
+        state.money += rev;
+        state.totalEarned += rev;
+        noteSale(sh.good, 's', k, rev);
+        if (!catchingUp) recent.push({ t: Date.now(), a: rev });
+      }
+    }
+  });
+  // Vertragskunden: nach den Läden, vor den Markthändlern
+  DATA.contracts.forEach(function (c) {
+    var s = state.contracts[c.id];
+    if (!s.signed || s.paused) { cstat[c.id] = ''; return; }
+    var g = c.good;
+    s.acc = Math.min((s.acc || 0) + ctrQty(c) * dt / 60, Math.max(2, ctrQty(c) / 60 * 5));
+    var n = Math.floor(s.acc);
+    if (n < 1) return;
+    if (!contractQualityOk(c)) { cstat[c.id] = 'quality'; return; }
+    var k = Math.min(n, Math.floor(state.inv[g] + 1e-9));
+    if (k < 1) { cstat[c.id] = 'empty'; return; }
+    var rev = k * contractPrice(c);
+    s.acc -= k;
+    removeStock(g, k);
+    state.money += rev;
+    state.totalEarned += rev;
+    cstat[c.id] = 'ok';
+    noteSale(g, 'c', k, rev);
+    if (!catchingUp) recent.push({ t: Date.now(), a: rev });
+  });
+  Object.keys(DATA.goods).forEach(function (g) {
+    var lv = state.sellers[g];
+    if (lv > 0) {
+      sellAcc[g] = Math.min((sellAcc[g] || 0) + lv * dt, lv * 2);
+      var n = Math.floor(sellAcc[g]);
+      if (n >= 1) {
+        var m0 = state.money, sold = sell(g, n, state.minPct[g] / 100, reserveUnits(g));
+        sellAcc[g] -= sold || 0;
+        if (sold) noteSale(g, 'd', sold, state.money - m0);
+      }
+    } else { sellAcc[g] = 0; }
+  });
+  if (!catchingUp) { tickOrders(dt); tickEvents(dt); }   // Aufträge und Ereignisse laufen nur, solange du spielst
+  marketTimer += dt;
+  while (marketTimer >= DATA.market.interval) { marketTimer -= DATA.market.interval; marketTick(); }
+  updateStats(dt);
+}
+/* Aufträge und Ereignisse */
+function rnd(a, b) { return a + Math.random() * (b - a); }
+function rndInt(a, b) { return Math.round(rnd(a, b)); }
+function activeGoods() {
+  return Object.keys(DATA.goods).filter(function (g) { return state.star[g] >= 1 && (state.inv[g] > 0 || state.xp[g] > 0); });
+}
+function pickWeighted(items, w) {
+  var tot = 0; items.forEach(function (x) { tot += w(x); });
+  var r = Math.random() * tot, i;
+  for (i = 0; i < items.length; i++) { r -= w(items[i]); if (r <= 0) return items[i]; }
+  return items[items.length - 1];
+}
+// Menge eines Auftrags: einige Minuten deiner Produktion, aber nie weniger als ein Anteil des Lagers und nie mehr als ins Lager passt
+function orderQty(g, minutes) {
+  var f = flows(g), rate = Math.max(f.prod, 0), cap = capacity(g);
+  var q = Math.max(rate * minutes, cap * 0.08, 20);
+  return Math.max(10, Math.round(Math.min(q, cap * 0.8) / 5) * 5);
+}
+function orderOk(o) { return Math.round(state.qual[o.good] * 10) / 10 >= o.minStar - 1e-9; }
+function orderCanDeliver(o) { return orderOk(o) && state.inv[o.good] + 1e-9 >= o.qty; }
+function makeOrder(kind) {
+  var goods = activeGoods();
+  if (!goods.length) return null;
+  var O = DATA.orders, taken = {};
+  state.orders.list.forEach(function (o) { taken[o.good] = true; });
+  var free = goods.filter(function (g) { return !taken[g]; });
+  var g = pickWeighted(free.length ? free : goods, function (x) { return Math.sqrt(DATA.goods[x].base) + 0.5; });
+  var star = Math.max(1, state.star[g]), top = Math.random() < O.topStar, minStar = top ? star : Math.max(1, star - rndInt(1, 2));
+  var prem = rnd(O.premium[0], O.premium[1]) + (top ? 0.25 : 0), left = rnd(O.time[0], O.time[1]);
+  if (kind === 'buyer') { var B = DATA.events.types.filter(function (t) { return t.id === 'buyer'; })[0]; prem = rnd(B.mult[0], B.mult[1]); left = B.time[0]; }
+  var qty = orderQty(g, rnd(O.minutes[0], O.minutes[1]) * (kind === 'buyer' ? 1.4 : 1));
+  var unit = Math.round(DATA.goods[g].base * (1 + qBonus(minStar)) * prem * 100) / 100;
+  var o = { id: state.orders.nextId++, good: g, qty: qty, minStar: minStar, unit: unit, left: left, kind: kind === 'buyer' ? 'buyer' : 'normal',
+            who: kind === 'buyer' ? 'Großabnehmer ' + O.customers[Math.floor(Math.random() * O.customers.length)].split(' ').slice(-1)[0]
+                                  : O.customers[Math.floor(Math.random() * O.customers.length)] };
+  state.orders.list.push(o);
+  return o;
+}
+function deliverOrder(id) {
+  var i, o = null;
+  for (i = 0; i < state.orders.list.length; i++) if (state.orders.list[i].id === id) { o = state.orders.list[i]; break; }
+  if (!o || !orderCanDeliver(o)) return false;
+  var rev = o.qty * o.unit;
+  removeStock(o.good, o.qty);
+  state.money += rev; state.totalEarned += rev;
+  state.orders.done++; state.orders.earned += rev;
+  state.orders.list.splice(i, 1);
+  if (!catchingUp) recent.push({ t: Date.now(), a: rev });
+  return true;
+}
+function declineOrder(id) {
+  state.orders.list = state.orders.list.filter(function (o) { return o.id !== id; });
+  state.orders.timer = Math.min(state.orders.timer, rnd(DATA.orders.every[0], DATA.orders.every[1]) * 0.5);
+}
+function tickOrders(dt) {
+  var O = state.orders, C = DATA.orders;
+  O.list.forEach(function (o) { o.left -= dt; });
+  O.list = O.list.filter(function (o) { return o.left > 0; });
+  if (!isUnlocked('tipOrders')) return;
+  O.timer -= dt;
+  if (O.timer <= 0) {
+    if (O.list.length < C.max) makeOrder('normal');
+    O.timer = rnd(C.every[0], C.every[1]);
+  }
+}
+function startEvent(typeId) {
+  var T = DATA.events.types.filter(function (t) { return t.id === typeId; })[0], E = state.events;
+  if (!T) return null;
+  if (T.id === 'buyer') { var o = makeOrder('buyer'); return o ? { type: 'buyer', order: o } : null; }
+  var g = null;
+  if (T.id !== 'festival') {
+    var goods = activeGoods().filter(function (x) { return !E.active.some(function (e) { return e.good === x; }); });
+    if (!goods.length) return null;
+    g = pickWeighted(goods, function (x) { return Math.sqrt(DATA.goods[x].base) + 0.5; });
+  } else if (E.active.some(function (e) { return e.type === 'festival'; })) return null;
+  var t = rnd(T.time[0], T.time[1]);
+  var e = { id: E.nextId++, type: T.id, good: g, mult: Math.round(rnd(T.mult[0], T.mult[1]) * 100) / 100, left: t, total: t };
+  E.active.push(e);
+  return e;
+}
+function tickEvents(dt) {
+  var E = state.events, C = DATA.events;
+  E.active.forEach(function (e) { e.left -= dt; });
+  E.active = E.active.filter(function (e) { return e.left > 0; });
+  if (!isUnlocked('tipEvents')) return;
+  E.timer -= dt;
+  if (E.timer <= 0) {
+    if (E.active.length < C.max) { var T = pickWeighted(C.types, function (t) { return t.w; }); startEvent(T.id); }
+    E.timer = rnd(C.every[0], C.every[1]);
+  }
+}
+function advance(dt) {
+  dt = Math.min(dt, MAX_OFFLINE);
+  while (dt > 0) { var d = Math.min(dt, 0.25); step(d); dt -= d; }
+}
+function advanceWithReport(dt) {
+  if (dt <= 20) { advance(dt); return; }
+  var before = state.money;
+  catchingUp = true; advance(dt); catchingUp = false;
+  var gain = state.money - before;
+  if (gain >= 1) {
+    var min = Math.round(Math.min(dt, MAX_OFFLINE) / 60);
+    $('#bannerText').textContent = 'Während du weg warst (' + (min < 1 ? '<1' : nf0.format(min)) +
+      ' Min.), hat dein Betrieb ' + money(gain) + ' verdient.';
+    $('#banner').hidden = false;
+  }
+}
+
+/* ============================================================
+   OBERFLÄCHE
+   ============================================================ */
+var ui = { b: {}, g: {}, cards: {}, perks: {}, shops: {}, q: {}, c: {}, r: {}, sup: {} };
+
+var navCollapsed = {};          // eingeklappte Gruppen der Seitenleiste
+function navGroup(nav, id, icon, name) {
+  var open = !navCollapsed[id];
+  var g = el('div', 'navgroup');
+  var head = el('button', 'navhead', '<span class="chev">' + (open ? '▾' : '▸') + '</span>' + icon + ' ' + name);
+  head.addEventListener('click', function () { navCollapsed[id] = open; buildTabs(); });
+  var body = el('div', 'navitems');
+  body.hidden = !open;
+  g.appendChild(head); g.appendChild(body); nav.appendChild(g);
+  return body;
+}
+function navItem(body, icon, label, active, onClick) {
+  var t = el('button', 'navitem' + (active ? ' active' : ''), '<span class="ni">' + icon + '</span>' + label);
+  if (onClick) t.addEventListener('click', onClick); else t.disabled = true;
+  body.appendChild(t);
+  return t;
+}
+function viewItem(body, icon, label, view) {
+  return navItem(body, icon, label, currentView === view, function () { currentView = view; buildTabs(); applyView(); update(); });
+}
+function buildTabs() {
+  var nav = $('#tabs');
+  nav.innerHTML = '';
+  tabsIndustryKey = industryKey();
+  DATA.groups.forEach(function (gr) {
+    var ids = Object.keys(DATA.industries).filter(function (id) {
+      var ind = DATA.industries[id];
+      return ind.group === gr.id && (!ind.unlock || isUnlocked(ind.unlock));
+    });
+    if (!ids.length) return;
+    var body = navGroup(nav, gr.id, gr.icon, gr.name);
+    ids.forEach(function (id) {
+      var ind = DATA.industries[id];
+      navItem(body, ind.icon, ind.name, currentView === 'industry' && id === currentIndustry, function () {
+        currentIndustry = id; currentView = 'industry';
+        buildTabs(); applyIndustryFilter(); applyView(); update();
+      });
+    });
+  });
+  var office = navGroup(nav, 'office', '🗂️', 'Büro');
+  tabsShops = shopsAvailable();
+  if (tabsShops) viewItem(office, '🏪', 'Läden', 'shops');
+  tabsQuality = isUnlocked('tipQuality');
+  if (tabsQuality) viewItem(office, '⭐', 'Qualität', 'quality');
+  tabsResearch = isUnlocked('tipResearch');
+  if (tabsResearch) viewItem(office, '🧪', 'Forschung', 'research');
+  tabsContracts = isUnlocked('tipContracts');
+  if (tabsContracts) viewItem(office, '📜', 'Verträge', 'contracts');
+  tabsOrders = isUnlocked('tipOrders');
+  ordersNavBtn = null; ordersNavKey = '';
+  if (tabsOrders) ordersNavBtn = viewItem(office, '📋', 'Aufträge', 'orders');
+  tabsExchange = isUnlocked('tipExchange');
+  if (tabsExchange) viewItem(office, '📈', 'Börse', 'exchange');
+  tabsBranches = isUnlocked('tipBranches');
+  if (tabsBranches) viewItem(office, '＋', 'Neue Branche', 'branches');
+  else navItem(office, '＋', 'Neue Branche (bald)', false, null);
+}
+function applyView() {
+  $('#mainCols').hidden = currentView !== 'industry';
+  $('#shopsView').hidden = currentView !== 'shops';
+  $('#qualityView').hidden = currentView !== 'quality';
+  $('#branchView').hidden = currentView !== 'branches';
+  $('#researchView').hidden = currentView !== 'research';
+  $('#contractsView').hidden = currentView !== 'contracts';
+  $('#exchangeView').hidden = currentView !== 'exchange';
+  $('#ordersView').hidden = currentView !== 'orders';
+}
+function applyIndustryFilter() {
+  DATA.buildings.forEach(function (b) {
+    ui.cards[b.id].hidden = !(b.industry === currentIndustry && buildingVisible(b));
+  });
+  Object.keys(DATA.goods).forEach(function (g) {          // Lager & Markt: nur die Waren dieses Betriebs
+    var u = ui.g[g], p = producerOf(g);
+    if (u && u.card) u.card.hidden = !p || p.industry !== currentIndustry;
+  });
+  Object.keys(ui.sup).forEach(function (id) { ui.sup[id].card.hidden = id !== currentIndustry; });
+}
+function ref(root, name) { return $('[data-r="' + name + '"]', root); }
+
+function buildBuildings() {
+  var root = $('#buildings');
+  root.innerHTML = '';
+  DATA.buildings.forEach(function (b) {
+    var card = el('div', 'card',
+      '<div class="row">' +
+        '<div class="title"><span class="ico">' + b.icon + '</span>' +
+          '<div><strong>' + b.name + '</strong><div class="small mute" data-r="count"></div></div></div>' +
+        '<div class="small mute" data-r="rate"></div>' +
+      '</div>' +
+      '<div class="recipe small">' + (Object.keys(b.inputs).length ? goodsText(b.inputs) : 'Kostenlos') +
+        ' → <b>' + goodsText(b.outputs) + '</b> · <span data-r="time">' + b.time + '</span> s</div>' +
+      '<div class="bar"><i data-r="bar"></i></div>' +
+      '<div class="small mute" data-r="status"></div>' +
+      '<div class="row actions">' +
+        '<button class="btn primary" data-r="run">Produzieren</button>' +
+        '<button class="btn" data-r="buy"></button>' +
+        '<button class="btn" data-r="mgr"></button>' +
+      '</div>');
+    root.appendChild(card);
+    var r = {
+      count: ref(card, 'count'), rate: ref(card, 'rate'), bar: ref(card, 'bar'),
+      status: ref(card, 'status'), run: ref(card, 'run'), buy: ref(card, 'buy'), mgr: ref(card, 'mgr'), time: ref(card, 'time')
+    };
+    r.run.addEventListener('click', function () { startCycle(b); update(); });
+    r.buy.addEventListener('click', function () { buyBuilding(b.id); update(); });
+    r.mgr.addEventListener('click', function () { buyManager(b.id); update(); });
+    ui.b[b.id] = r;
+    ui.cards[b.id] = card;
+  });
+  applyIndustryFilter();
+}
+
+function buildMarket() {
+  var root = $('#market');
+  root.innerHTML = '';
+  Object.keys(DATA.goods).forEach(function (g) {
+    var good = DATA.goods[g];
+    var row = el('div', 'card',
+      '<div class="row">' +
+        '<div class="title"><span class="ico">' + good.icon + '</span>' +
+          '<div><strong>' + good.name + '</strong>' +
+          '<div class="small mute">Lager: <b data-r="stock">0</b> / <span data-r="cap"></span></div></div></div>' +
+        '<div class="price"><b data-r="price"></b> <span data-r="trend"></span>' +
+          '<div class="small mute" data-r="norm"></div></div>' +
+      '</div>' +
+      '<div class="bar thin"><i data-r="fill"></i></div>' +
+      '<div class="small" data-r="qual" hidden></div>' +
+      '<div class="small mute" data-r="lage"></div>' +
+      '<div class="small mute" data-r="seller"></div>' +
+      '<div class="pricectl" data-r="minrow" hidden><span class="small mute">Händler verkauft ab</span>' +
+        '<button class="btn" data-r="mmin">−</button><b data-r="minv"></b>' +
+        '<button class="btn" data-r="mplus">+</button><span class="small mute">vom Normalpreis</span></div>' +
+      '<div class="pricectl" data-r="resrow" hidden><span class="small mute">Händler lässt im Lager</span>' +
+        '<button class="btn" data-r="rmin">−</button><b data-r="resv"></b>' +
+        '<button class="btn" data-r="rplus">+</button><span class="small mute" data-r="resn"></span></div>' +
+      '<div class="small" data-r="bal" hidden></div>' +
+      '<div class="sellrow"><input class="qtyin" type="number" min="1" step="1" value="10" data-r="qty" aria-label="Menge">' +
+        '<button class="btn" data-r="sq">Verkaufen</button>' +
+        '<button class="btn" data-r="shalf">Hälfte</button>' +
+        '<button class="btn" data-r="sall">Alles</button>' +
+        '<span class="small mute" data-r="quote"></span></div>' +
+      '<div class="row actions">' +
+        '<button class="btn" data-r="hire"></button>' +
+        '<button class="btn" data-r="fire" hidden></button>' +
+        '<button class="btn" data-r="store"></button>' +
+      '</div>');
+    root.appendChild(row);
+    var r = {
+      card: row, stock: ref(row, 'stock'), price: ref(row, 'price'), trend: ref(row, 'trend'),
+      seller: ref(row, 'seller'), qty: ref(row, 'qty'), sq: ref(row, 'sq'), shalf: ref(row, 'shalf'), quote: ref(row, 'quote'), sall: ref(row, 'sall'), hire: ref(row, 'hire'), fire: ref(row, 'fire'),
+      cap: ref(row, 'cap'), fill: ref(row, 'fill'), store: ref(row, 'store'), bal: ref(row, 'bal'),
+      norm: ref(row, 'norm'), qual: ref(row, 'qual'), lage: ref(row, 'lage'), minrow: ref(row, 'minrow'),
+      minv: ref(row, 'minv'), mmin: ref(row, 'mmin'), mplus: ref(row, 'mplus'),
+      resrow: ref(row, 'resrow'), resv: ref(row, 'resv'), resn: ref(row, 'resn'), rmin: ref(row, 'rmin'), rplus: ref(row, 'rplus')
+    };
+    r.sq.addEventListener('click', function () { sell(g, sellQty(r)); update(); });
+    r.shalf.addEventListener('click', function () { sell(g, Math.floor(state.inv[g] / 2)); update(); });
+    r.sall.addEventListener('click', function () { sell(g, state.inv[g]); update(); });
+    r.qty.addEventListener('input', function () { update(); });
+    r.hire.addEventListener('click', function () { buySeller(g); update(); });
+    armFire(r.fire, g);
+    r.store.addEventListener('click', function () { buyStorage(g); update(); });
+    r.mmin.addEventListener('click', function () { changeMinPct(g, -1); update(); });
+    r.mplus.addEventListener('click', function () { changeMinPct(g, 1); update(); });
+    r.rmin.addEventListener('click', function () { changeReserve(g, -1); update(); });
+    r.rplus.addEventListener('click', function () { changeReserve(g, 1); update(); });
+    ui.g[g] = r;
+  });
+}
+
+// Menge aus dem Eingabefeld (mindestens 1)
+function sellQty(r) { var n = parseInt(String(r.qty.value), 10); return n >= 1 ? n : 1; }
+// Zweistufiges Kündigen: erster Klick fragt nach, zweiter Klick (innerhalb von 4 s) kündigt wirklich
+function armFire(btn, g) {
+  var t = 0;
+  btn.addEventListener('click', function () {
+    var now = Date.now();
+    if (now - t < 4000) { t = 0; fireSeller(g); }
+    else t = now;
+    update();
+  });
+  btn._armed = function () { return Date.now() - t < 4000; };
+}
+function buildSupply() {
+  var root = $('#supply');
+  root.innerHTML = '';
+  ui.sup = {};
+  Object.keys(DATA.industries).forEach(function (id) {
+    var goods = [];
+    DATA.buildings.forEach(function (b) {
+      if (b.industry !== id) return;
+      Object.keys(b.inputs).forEach(function (g) {
+        var p = producerOf(g);
+        if (p && p.industry !== id && goods.indexOf(g) < 0) goods.push(g);
+      });
+    });
+    if (!goods.length) return;
+    var card = el('div', 'card', '<strong>Zulieferung</strong>' +
+      '<div class="small mute">Das holt sich dieser Betrieb automatisch aus dem Lager deiner anderen Betriebe.</div>');
+    var rows = [];
+    goods.forEach(function (g) {
+      var from = DATA.industries[producerOf(g).industry];
+      var row = el('div', 'row small', '<span>' + DATA.goods[g].icon + ' <b>' + DATA.goods[g].name +
+        '</b> <span class="mute">von ' + from.icon + ' ' + from.name + '</span></span><span data-r="stk"></span>');
+      card.appendChild(row);
+      rows.push({ g: g, stk: ref(row, 'stk') });
+    });
+    root.appendChild(card);
+    ui.sup[id] = { card: card, rows: rows };
+  });
+}
+function updateSupply() {
+  Object.keys(ui.sup).forEach(function (id) {
+    var u = ui.sup[id];
+    if (id !== currentIndustry) return;
+    u.rows.forEach(function (r) {
+      var st = Math.floor(state.inv[r.g] + 1e-9);
+      setText(r.stk, st < 1 ? 'Lager leer – die Produktion wartet' : 'Lager ' + nf0.format(st) + ' / ' + nf0.format(capacity(r.g)));
+      r.stk.className = st < 1 ? 'down' : 'mute';
+    });
+  });
+}
+
+var shopsCollapsed = {};         // eingeklappte Ladengruppen
+function buildShops() {
+  var root = $('#shops');
+  root.innerHTML = '';
+  ui.ss = {}; ui.shopGroup = {};
+  DATA.groups.forEach(function (gr) {
+    var box = el('div', 'csec'), head = el('button', 'cshead'), grid = el('div', 'qgrid wide');
+    box.appendChild(head); box.appendChild(grid); root.appendChild(box);
+    ui.ss[gr.id] = { box: box, head: head, grid: grid, gr: gr };
+    head.addEventListener('click', function () { shopsCollapsed[gr.id] = !shopsCollapsed[gr.id]; update(); });
+  });
+  DATA.shops.forEach(function (sh) {
+    var good = DATA.goods[sh.good];
+    var gid = (DATA.industries[sh.industry] && DATA.industries[sh.industry].group) || DATA.groups[0].id;
+    ui.shopGroup[sh.id] = gid;
+    var card = el('div', 'card qcard',
+      '<div class="row"><div class="title"><span class="ico">' + sh.icon + '</span>' +
+        '<div><strong>' + sh.name + '</strong><div class="small mute" data-r="level"></div></div></div>' +
+        '<div class="price"><b data-r="inc"></b></div></div>' +
+      '<div data-r="body">' +
+        '<div class="pricectl"><span class="small mute">Verkaufspreis</span>' +
+          '<button class="btn" data-r="minus">−</button><b data-r="price"></b>' +
+          '<button class="btn" data-r="plus">+</button>' +
+          '<span class="small mute" data-r="market"></span></div>' +
+        '<div class="small" data-r="stats"></div>' +
+      '</div>' +
+      '<div class="row actions"><button class="btn primary" data-r="buy"></button>' +
+        '<button class="btn" data-r="mgr" hidden></button></div>');
+    ui.ss[gid].grid.appendChild(card);
+    var u = {
+      card: card, body: ref(card, 'body'), level: ref(card, 'level'), price: ref(card, 'price'), inc: ref(card, 'inc'),
+      market: ref(card, 'market'), stats: ref(card, 'stats'), buy: ref(card, 'buy'),
+      minus: ref(card, 'minus'), plus: ref(card, 'plus'), mgr: ref(card, 'mgr')
+    };
+    u.mgr.addEventListener('click', function () { buyShopManager(sh.id); update(); });
+    u.minus.addEventListener('click', function () { changeShopPrice(sh.id, -1); update(); });
+    u.plus.addEventListener('click', function () { changeShopPrice(sh.id, 1); update(); });
+    u.buy.addEventListener('click', function () { buyShop(sh.id); update(); });
+    ui.shops[sh.id] = u;
+  });
+}
+
+function buildBranches() {
+  var root = $('#branches');
+  root.innerHTML = '';
+  ui.br = {};
+  DATA.branches.forEach(function (br) {
+    var card = el('div', 'card',
+      '<div class="row"><div class="title"><span class="ico">' + br.icon + '</span>' +
+        '<div><strong>' + br.name + '</strong><div class="small mute">' + br.desc + '</div></div></div></div>' +
+      '<div class="small" data-r="need"></div>' +
+      '<div class="row actions"><button class="btn primary" data-r="buy"></button></div>');
+    root.appendChild(card);
+    var u = { need: ref(card, 'need'), buy: ref(card, 'buy') };
+    u.buy.addEventListener('click', function () { foundBranch(br.id); update(); });
+    ui.br[br.id] = u;
+  });
+}
+function updateBranches() {
+  DATA.branches.forEach(function (br) {
+    var u = ui.br[br.id], owned = isUnlocked(br.unlock), ready = branchReady(br);
+    var need = '';
+    if (owned) need = '<span class="up">Gegründet.</span> Die neuen Betriebe findest du in den Tabs oben.';
+    else if (br.need) {
+      var g = DATA.goods[br.need.good];
+      need = 'Voraussetzung: ' + g.name + ' in ★' + br.need.star + ' <b class="' + (ready ? 'up' : 'down') + '">(du: ★' +
+        state.star[br.need.good] + ')</b>';
+    }
+    if (u.needHtml !== need) { u.need.innerHTML = need; u.needHtml = need; }
+    setText(u.buy, owned ? '✓ Gegründet' : 'Branche gründen · ' + money(br.cost));
+    u.buy.disabled = owned || !ready || state.money < br.cost;
+  });
+}
+
+var researchCollapsed = {};
+function pipsText(l, max) { var t = ''; for (var i = 1; i <= max; i++) t += (i <= l ? '●' : '○'); return t; }
+function buildResearch() {
+  var root = $('#research');
+  root.innerHTML = '';
+  ui.rs = {};
+  DATA.researchCats.forEach(function (cat) {
+    var box = el('div', 'csec'), head = el('button', 'cshead'), grid = el('div', 'qgrid');
+    box.appendChild(head); box.appendChild(grid); root.appendChild(box);
+    ui.rs[cat.id] = { box: box, head: head, grid: grid, cat: cat, ids: [] };
+    head.addEventListener('click', function () { researchCollapsed[cat.id] = !researchCollapsed[cat.id]; updateResearch(); });
+  });
+  DATA.research.forEach(function (p) {
+    var sec = ui.rs[p.cat];
+    sec.ids.push(p.id);
+    var card = el('div', 'card qcard',
+      '<div class="row"><div class="title"><span class="ico">' + p.icon + '</span>' +
+        '<div><strong>' + p.name + '</strong><div class="small mute" data-r="lvl"></div></div></div>' +
+        '<div class="pips" data-r="pips"></div></div>' +
+      '<div class="small" data-r="now"></div>' +
+      '<div class="small mute" data-r="next"></div>' +
+      '<div class="small" data-r="req"></div>' +
+      '<div class="qdetails small mute" data-r="details" hidden>' + p.desc + '</div>' +
+      '<div class="row actions"><button class="btn primary" data-r="buy"></button>' +
+        '<button class="btn" data-r="more">Details ▾</button></div>');
+    sec.grid.appendChild(card);
+    var u = { card: card, lvl: ref(card, 'lvl'), pips: ref(card, 'pips'), now: ref(card, 'now'), next: ref(card, 'next'),
+              req: ref(card, 'req'), buy: ref(card, 'buy'), details: ref(card, 'details'), more: ref(card, 'more'), open: false };
+    u.buy.addEventListener('click', function () { buyResearch(p.id); update(); });
+    u.more.addEventListener('click', function () {
+      u.open = !u.open; u.details.hidden = !u.open; u.more.textContent = u.open ? 'Details ▴' : 'Details ▾';
+    });
+    ui.r[p.id] = u;
+  });
+}
+function updateResearch() {
+  var doneL = 0, totL = 0, can = {}, nCan = 0;
+  DATA.research.forEach(function (p) {
+    var u = ui.r[p.id], l = rlevel(p.id), max = p.rp.length, n = researchNext(p);
+    if (p.unlock && !isUnlocked(p.unlock)) { u.card.hidden = true; return; }
+    doneL += l; totL += max;
+    u.card.hidden = !!researchCollapsed[p.cat];
+    setText(u.lvl, 'Stufe ' + l + ' von ' + max);
+    setText(u.pips, pipsText(l, max));
+    setText(u.now, 'Jetzt: ' + p.text(l));
+    if (!n) {
+      setText(u.next, '');
+      if (u.reqHtml) { u.req.innerHTML = ''; u.reqHtml = ''; }
+      setText(u.buy, '✓ Voll ausgebaut');
+      u.buy.disabled = true;
+      return;
+    }
+    setText(u.next, 'Nächste Stufe: ' + p.text(n.level));
+    var okM = state.money >= n.money, okR = state.rp >= n.rp;
+    if (okM && okR) { can[p.cat] = (can[p.cat] || 0) + 1; nCan++; }
+    var html = 'Kosten: <b class="' + (okM ? '' : 'down') + '">' + money(n.money) + '</b> und <b class="' +
+      (okR ? '' : 'down') + '">' + nf0.format(n.rp) + ' 🔬</b>';
+    if (u.reqHtml !== html) { u.req.innerHTML = html; u.reqHtml = html; }
+    setText(u.buy, 'Erforschen: Stufe ' + n.level);
+    u.buy.disabled = !(okM && okR);
+  });
+  DATA.researchCats.forEach(function (cat) {
+    var sec = ui.rs[cat.id];
+    var html = '<span>' + (researchCollapsed[cat.id] ? '▸ ' : '▾ ') + cat.icon + ' ' + cat.name + '</span>' +
+      '<span class="small' + (can[cat.id] ? ' up' : '') + '">' + (can[cat.id] ? can[cat.id] + ' jetzt erforschbar' : sec.ids.length + ' Projekte') + '</span>';
+    if (sec.headHtml !== html) { sec.head.innerHTML = html; sec.headHtml = html; }
+  });
+  var sum = '<span><b>' + doneL + '</b> von ' + totL + ' Stufen erforscht</span><span><b>' + nCan + '</b> jetzt erforschbar</span>' +
+    '<span>🔬 <b>' + nf0.format(state.rp) + '</b> Forschungspunkte</span>';
+  var rEl = $('#researchSummary');
+  if (rEl._h !== sum) { rEl.innerHTML = sum; rEl._h = sum; }
+}
+
+/* ============================================================
+   BÖRSE: Marktbeobachtung
+   ============================================================ */
+// Wie viele Stück nimmt der Markt dauerhaft pro Minute auf, wenn dein Händler nicht unter "pct" % verkauft?
+// (Gleichgewicht aus Verkaufsdruck pro Stück und Erholung; die Marktlage ist hier mit 100 % angenommen.)
+function marketAbsorb(g, pct) {
+  var M = DATA.market, p = pct / 100;
+  if (p >= 1) return 0;
+  var imp = Math.min(M.impactMax, M.impact * DATA.goods[g].base / M.impactRef);
+  return 60 * recoverRate() * (1 - p) / (imp * Math.max(p, M.pressureMin));
+}
+// Wichtigster Hinweis zu einer Ware (oder leer)
+function exchangeStatus(g) {
+  var cap = capacity(g), stock = state.inv[g], lv = state.sellers[g], mp = state.minPct[g];
+  var f = flows(g), fac = marketFactor(g), keep = reserveUnits(g);
+  var sold = xstat[g].dP + xstat[g].sP + xstat[g].cP;
+  var hasSink = f.cons > 0 || lv > 0 || xstat[g].sP > 0 || xstat[g].cP > 0;
+  if (f.prod > 0 && stock >= cap * 0.98) {
+    return { sev: 2, cls: 'down', text: '⚠ Lager voll – die Produktion pausiert, dir geht Geld verloren.' +
+      (lv < 1 ? ' Stell einen Händler ein oder bau das Lager aus.' : (fac < mp / 100 ? ' Dein Händler wartet auf einen höheren Preis: Grenze senken verkauft mehr.' : ' Mehr Händler oder ein niedrigerer Mindestpreis verkaufen mehr.')) };
+  }
+  if (stock < cap * 0.05 && hasSink && (f.cons + xstat[g].sP + xstat[g].cP) > f.prod * 0.95 && f.prod > 0) {
+    return { sev: 2, cls: 'down', text: '⚠ Engpass: Das Lager ist fast leer, Abnehmer gehen leer aus. Mehr produzieren oder Händler-Reserve erhöhen.' };
+  }
+  if (lv > 0 && keep > 0 && stock <= keep + 1e-9) {
+    return { sev: 1, cls: 'mute', text: 'Händler pausiert: Die Reserve (' + nf0.format(keep) + ' Stück) ist erreicht.' };
+  }
+  if (lv > 0 && stock >= 1 && fac < mp / 100 - 1e-9) {
+    return { sev: 1, cls: 'mute', text: 'Händler wartet: Der Preis liegt bei ' + nf0.format(fac * 100) + ' %, deine Grenze ist ' + nf0.format(mp) + ' %.' };
+  }
+  if (lv > 0 && stock > cap * 0.6) {
+    var a0 = marketAbsorb(g, mp);
+    if (a0 < lv * 60 * 0.9) {
+      var lo = Math.max(DATA.market.minPct.lo, mp - 10);
+      return { sev: 1, cls: 'mute', text: 'Markt gesättigt: Bei ≥ ' + nf0.format(mp) + ' % nimmt er nur ≈ ' + nf0.format(a0) +
+        ' Stück/Min. auf. Bei ≥ ' + nf0.format(lo) + ' % wären es ≈ ' + nf0.format(marketAbsorb(g, lo)) + '.' };
+    }
+    if (xstat[g].dP < a0 * 0.8) {
+      return { sev: 1, cls: 'mute', text: 'Dein Händler schafft ' + nf0.format(lv * 60) + ' Stück/Min., der Markt nähme ≈ ' + nf0.format(a0) + '. Eine höhere Händler-Stufe verkauft mehr.' };
+    }
+  }
+  return { sev: 0, cls: 'mute', text: '' };
+}
+function sparkSvg(g) {
+  var h = state.hist[g];
+  if (!h || h.length < 2) return '<span class="small mute">sammelt Daten …</span>';
+  var v = h.map(function (x) { return x / 1000; });
+  var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v);
+  lo = Math.min(lo, 1) - 0.03; hi = Math.max(hi, 1) + 0.03;
+  var W = 150, H = 38;
+  function y(x) { return (H - 2 - (x - lo) / (hi - lo) * (H - 4)).toFixed(1); }
+  var pts = v.map(function (x, i) { return (i / (v.length - 1) * W).toFixed(1) + ',' + y(x); }).join(' ');
+  var mp = state.minPct[g] / 100;
+  var extra = (state.sellers[g] > 0 && mp > lo && mp < hi) ? '<line class="minl" x1="0" x2="' + W + '" y1="' + y(mp) + '" y2="' + y(mp) + '"/>' : '';
+  return '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none"><line class="base" x1="0" x2="' + W +
+    '" y1="' + y(1) + '" y2="' + y(1) + '"/>' + extra + '<polyline class="ln" points="' + pts + '"/></svg>';
+}
+
+var exchangeCollapsed = {}, exchangeOnlyFlags = false;
+function buildExchange() {
+  var root = $('#exchange');
+  root.innerHTML = '';
+  ui.xs = {}; ui.x = {};
+  DATA.groups.forEach(function (gr) {
+    var box = el('div', 'csec'), head = el('button', 'cshead'), body = el('div');
+    box.appendChild(head); box.appendChild(body); root.appendChild(box);
+    ui.xs[gr.id] = { box: box, head: head, body: body, gr: gr, goods: [] };
+    head.addEventListener('click', function () { exchangeCollapsed[gr.id] = !exchangeCollapsed[gr.id]; update(); });
+  });
+  Object.keys(DATA.goods).forEach(function (g) {
+    var good = DATA.goods[g], sec = ui.xs[qualityGroupOf(g)];
+    sec.goods.push(g);
+    var card = el('div', 'card xrow',
+      '<div class="title"><span class="ico">' + good.icon + '</span><div><strong>' + good.name + '</strong>' +
+        '<div class="small mute" data-r="q"></div></div></div>' +
+      '<div><b data-r="price"></b> <span data-r="trend"></span><div class="small mute" data-r="norm"></div>' +
+        '<div class="small mute" data-r="lage"></div></div>' +
+      '<div><div data-r="spark"></div><div class="small mute" data-r="range"></div></div>' +
+      '<div class="xflow small">' +
+        '<div>Lager <b data-r="stock"></b> / <span data-r="cap"></span></div>' +
+        '<div class="bar thin"><i data-r="fill"></i></div>' +
+        '<div data-r="flow"></div><div data-r="sold"></div></div>' +
+      '<div class="xctl small">' +
+        '<div class="pricectl" data-r="mrow"><span class="mute">Händler ab</span><button class="btn" data-r="mmin">−</button><b data-r="minv"></b><button class="btn" data-r="mplus">+</button></div>' +
+        '<div class="pricectl" data-r="rrow"><span class="mute">Reserve</span><button class="btn" data-r="rmin">−</button><b data-r="resv"></b><button class="btn" data-r="rplus">+</button></div>' +
+        '<div class="mute" data-r="absorb"></div>' +
+        '<button class="btn" data-r="hire" hidden></button>' +
+        '<button class="btn" data-r="fire" hidden></button></div>' +
+      '<div class="xhint small" data-r="hint" hidden></div>');
+    sec.body.appendChild(card);
+    var u = { card: card };
+    ['q','price','trend','norm','lage','spark','range','stock','cap','fill','flow','sold','mrow','rrow','mmin','minv','mplus',
+     'rmin','resv','rplus','absorb','hire','fire','hint'].forEach(function (k) { u[k] = ref(card, k); });
+    u.mmin.addEventListener('click', function () { changeMinPct(g, -1); update(); });
+    u.mplus.addEventListener('click', function () { changeMinPct(g, 1); update(); });
+    u.rmin.addEventListener('click', function () { changeReserve(g, -1); update(); });
+    u.rplus.addEventListener('click', function () { changeReserve(g, 1); update(); });
+    u.hire.addEventListener('click', function () { buySeller(g); update(); });
+    armFire(u.fire, g);
+    ui.x[g] = u;
+  });
+  $('#exFilter').addEventListener('click', function () { exchangeOnlyFlags = !exchangeOnlyFlags; update(); });
+}
+function updateExchange() {
+  var Q = DATA.quality, flags = 0, totD = 0, totS = 0, totC = 0, gFlags = {}, gRev = {};
+  DATA.groups.forEach(function (gr) { gFlags[gr.id] = 0; gRev[gr.id] = 0; });
+  Object.keys(DATA.goods).forEach(function (g) {
+    var good = DATA.goods[g], u = ui.x[g], gid = qualityGroupOf(g), st = xstat[g];
+    var vis = goodVisible(g);
+    var stat = vis ? exchangeStatus(g) : { sev: 0, text: '' };
+    if (vis) {
+      totD += st.dR; totS += st.sR; totC += st.cR; gRev[gid] += st.dR + st.sR + st.cR;
+      if (stat.sev > 0) { flags++; gFlags[gid]++; }
+    }
+    u.card.hidden = !vis || !!exchangeCollapsed[gid] || (exchangeOnlyFlags && stat.sev < 1);
+    if (!vis) return;
+    var base = good.base * valueMult(g), p = price(g), cap = capacity(g), stock = state.inv[g], lv = state.sellers[g];
+    setText(u.q, isUnlocked('tipQuality') ? starsText(state.star[g]).replace(/☆/g, '') + ' · Wert +' + nf0.format(qBonus(state.qual[g]) * 100) + ' %' : '');
+    setText(u.price, money(p));
+    u.price.className = p > base * 1.1 ? 'up' : (p < base * 0.9 ? 'down' : '');
+    var td = lastTrend[g] || 0, tr = td > 0 ? '▲' : (td < 0 ? '▼' : '–');
+    setText(u.trend, tr); u.trend.className = tr === '▲' ? 'up' : (tr === '▼' ? 'down' : 'mute');
+    setText(u.norm, 'Normal ' + money(base));
+    setText(u.lage, 'Lage ' + pctText(state.market[g] * eventMult(g)) + ' · Druck ' + pctText(state.pressure[g]));
+    var h = state.hist[g], key = h.length + ':' + h[h.length - 1] + ':' + lv + ':' + state.minPct[g];
+    if (u.sparkKey !== key) {
+      u.spark.innerHTML = sparkSvg(g); u.sparkKey = key;
+      if (h.length > 1) {
+        var lo = Math.min.apply(null, h), hi = Math.max.apply(null, h);
+        setText(u.range, 'Tief ' + nf0.format(lo / 10) + ' % · Hoch ' + nf0.format(hi / 10) + ' %');
+      } else setText(u.range, '');
+    }
+    setText(u.stock, nf0.format(stock)); setText(u.cap, nf0.format(cap));
+    u.fill.style.width = Math.min(100, stock / cap * 100) + '%';
+    var f = flows(g);
+    setText(u.flow, '⚙ Herstellung ' + nf0.format(f.prod) + ' · Verbrauch ' + nf0.format(f.cons) + ' pro Min.');
+    var pcs = st.dP + st.sP + st.cP, rev = st.dR + st.sR + st.cR, parts = [];
+    if (st.dP >= 0.5) parts.push('Händler ' + nf0.format(st.dP));
+    if (st.sP >= 0.5) parts.push('Läden ' + nf0.format(st.sP));
+    if (st.cP >= 0.5) parts.push('Verträge ' + nf0.format(st.cP));
+    setText(u.sold, pcs >= 0.5 ? '💰 Verkauft ' + nf0.format(pcs) + ' / Min. (' + parts.join(' · ') + ') ≈ ' + money(rev) + ' / Min.' +
+      (st.dP >= 0.5 ? ' · Ø Händlerpreis ' + money(st.dR / st.dP) : '') : '💰 Zurzeit wird nichts verkauft.');
+    u.mrow.hidden = u.rrow.hidden = lv < 1;
+    u.absorb.hidden = lv < 1;
+    u.fire.hidden = lv < 1;
+    if (lv >= 1) {
+      var armedX = u.fire._armed && u.fire._armed();
+      setText(u.fire, armedX ? 'Wirklich kündigen? Nochmal klicken' : 'Händler kündigen · +' + money(fireRefund(g)));
+      u.fire.className = armedX ? 'btn warn' : 'btn';
+    }
+    u.hire.hidden = lv >= 1;
+    if (lv < 1) { var hc = sellerCost(g); setText(u.hire, 'Händler anheuern · ' + money(hc)); u.hire.disabled = state.money < hc; }
+    else {
+      var mp = state.minPct[g], lo2 = Math.max(DATA.market.minPct.lo, mp - 10);
+      setText(u.minv, nf0.format(mp) + ' %');
+      setText(u.resv, nf0.format(state.reserve[g] || 0) + ' %');
+      var a1 = marketAbsorb(g, mp), a2 = marketAbsorb(g, lo2);
+      setText(u.absorb, 'Markt nimmt bei ≥ ' + nf0.format(mp) + ' % ≈ ' + nf0.format(a1) + ' Stück/Min. (≈ ' + money(a1 * base * mp / 100) +
+        '), bei ≥ ' + nf0.format(lo2) + ' % ≈ ' + nf0.format(a2) + ' (≈ ' + money(a2 * base * lo2 / 100) + ').');
+    }
+    u.hint.hidden = !stat.text;
+    setText(u.hint, stat.text);
+    u.hint.className = 'xhint small ' + (stat.cls || '');
+  });
+  DATA.groups.forEach(function (gr) {
+    var sec = ui.xs[gr.id], vis = sec.goods.filter(goodVisible).length;
+    sec.box.hidden = !vis;
+    var html = '<span>' + (exchangeCollapsed[gr.id] ? '▸ ' : '▾ ') + gr.icon + ' ' + gr.name + '</span>' +
+      '<span class="small' + (gFlags[gr.id] ? ' down' : '') + '">' + (gFlags[gr.id] ? gFlags[gr.id] + (gFlags[gr.id] === 1 ? ' Hinweis' : ' Hinweise') + ' · ' : '') +
+      '≈ ' + money(gRev[gr.id]) + ' / Min.</span>';
+    if (sec.headHtml !== html) { sec.head.innerHTML = html; sec.headHtml = html; }
+  });
+  var sum = '<span>Einnahmen ≈ <b>' + money(totD + totS + totC) + '</b> / Min.</span>' +
+    '<span>Händler <b>' + money(totD) + '</b></span><span>Läden <b>' + money(totS) + '</b></span><span>Verträge <b>' + money(totC) + '</b></span>' +
+    '<span class="' + (flags ? 'down' : 'up') + '"><b>' + flags + '</b> ' + (flags === 1 ? 'Hinweis' : 'Hinweise') + '</span>';
+  var sEl = $('#exchangeSummary');
+  if (sEl._h !== sum) { sEl.innerHTML = sum; sEl._h = sum; }
+  setText($('#exFilter'), exchangeOnlyFlags ? 'Alle Waren zeigen' : 'Nur Waren mit Hinweis zeigen');
+}
+
+var contractsCollapsed = {};     // eingeklappte Vertragsgruppen (pro Ware)
+function buildContracts() {
+  var root = $('#contracts');
+  root.innerHTML = '';
+  ui.cs = {};
+  DATA.contracts.forEach(function (c) {
+    var good = DATA.goods[c.good];
+    var sec = ui.cs[c.good];
+    if (!sec) {
+      var box = el('div', 'csec');
+      var head = el('button', 'cshead');
+      var body = el('div');
+      box.appendChild(head); box.appendChild(body); root.appendChild(box);
+      sec = ui.cs[c.good] = { box: box, head: head, body: body, good: c.good, ids: [] };
+      head.addEventListener('click', function () {
+        contractsCollapsed[sec.good] = !contractsCollapsed[sec.good]; updateContracts();
+      });
+    }
+    sec.ids.push(c.id);
+    var card = el('div', 'card crow',
+      '<div class="cmain"><span class="ico">' + c.icon + '</span>' +
+        '<div><strong>' + c.name + '</strong><span class="chip">' + good.icon + ' ab ★' + c.minStar + '</span>' +
+        '<div class="small mute" data-r="terms"></div>' +
+        '<div class="small" data-r="status"></div>' +
+        '<div class="cup"><button class="btn sm" data-r="upq" hidden></button><button class="btn sm" data-r="upp" hidden></button></div>' +
+        '<div class="small mute" data-r="desc">' + c.desc + '</div></div></div>' +
+      '<div class="cact">' +
+        '<button class="btn primary" data-r="sign"></button>' +
+
+        '<button class="btn" data-r="pause" hidden></button>' +
+      '</div>');
+    sec.body.appendChild(card);
+    var u = { card: card, terms: ref(card, 'terms'), status: ref(card, 'status'), desc: ref(card, 'desc'),
+              sign: ref(card, 'sign'), pause: ref(card, 'pause'), upq: ref(card, 'upq'), upp: ref(card, 'upp') };
+    u.sign.addEventListener('click', function () { signContract(c.id); update(); });
+    u.pause.addEventListener('click', function () { toggleContract(c.id); update(); });
+    u.upq.addEventListener('click', function () { upgradeContract(c.id, 'qty'); update(); });
+    u.upp.addEventListener('click', function () { upgradeContract(c.id, 'price'); update(); });
+    ui.c[c.id] = u;
+  });
+}
+function updateContracts() {
+  var active = {}, shown = {}, total = 0, nActive = 0, nShown = 0;
+  DATA.contracts.forEach(function (c) {
+    var u = ui.c[c.id], s = state.contracts[c.id], good = DATA.goods[c.good];
+    var hide = !!c.unlock && !isUnlocked(c.unlock);
+    u.card.hidden = hide || !!contractsCollapsed[c.good];
+    if (hide) return;
+    shown[c.good] = (shown[c.good] || 0) + 1; nShown++;
+    var locked = contractLocked(c);
+    var pr = contractPrice(c);
+    if (s.signed) { active[c.good] = (active[c.good] || 0) + 1; nActive++; if (!s.paused) total += pr * ctrQty(c); }
+    setText(u.terms, nf1.format(ctrQty(c)) + ' ' + good.icon + ' pro Min. · ' + nf0.format(ctrFactor(c) * 100) +
+      ' % vom Normalpreis · jetzt ' + money(pr) + ' pro Stück (≈ ' + money(pr * ctrQty(c)) + ' / Min.)');
+    var st;
+    if (!s.signed) {
+      st = locked ? 'Gesperrt: verlangt ' + good.name + ' in ★' + c.minStar + ' (du bist bei ★' + state.star[c.good] + ').'
+                  : 'Bereit zum Abschluss.';
+    } else if (s.paused) {
+      st = 'Pausiert – es wird nichts geliefert.';
+    } else if (cstat[c.id] === 'quality') {
+      st = 'Lieferung ruht: Das Lager hat nur ' + qfmt(state.qual[c.good]) + ', verlangt wird ★' + c.minStar + '.';
+    } else if (cstat[c.id] === 'empty') {
+      st = 'Lieferung fällt aus: kein ' + good.name + ' im Lager.';
+    } else {
+      st = 'Wird beliefert.';
+    }
+    setText(u.status, st);
+    u.status.className = 'small ' + (s.signed && !s.paused ? ((cstat[c.id] === 'quality' || cstat[c.id] === 'empty') ? 'down' : 'up') : 'mute');
+    u.desc.hidden = s.signed || locked;               // Beschreibung nur, solange man noch überlegt
+    u.terms.hidden = !s.signed && locked;             // gesperrte Verträge bleiben einzeilig
+    u.card.className = 'card crow' + (!s.signed && locked ? ' off' : '');
+    u.sign.hidden = s.signed;
+    u.pause.hidden = !s.signed;
+    ['qty', 'price'].forEach(function (kind) {
+      var b = kind === 'qty' ? u.upq : u.upp, lv = kind === 'qty' ? s.qLv : s.pLv, U = DATA.contractUp[kind];
+      var cost = contractUpCost(c, kind);
+      b.hidden = !s.signed;
+      setText(b, (kind === 'qty' ? '📦 Menge ' : '💶 Preis ') + lv + '/' + U.max + (cost == null ? ' · max.' :
+        ' · +' + nf0.format(U.per * 100) + (kind === 'qty' ? ' % · ' : ' Pkt. · ') + money(cost)));
+      b.disabled = cost == null || state.money < cost;
+    });
+    setText(u.sign, locked ? 'Gesperrt' : 'Abschließen · ' + money(c.cost));
+    u.sign.disabled = locked || state.money < c.cost;
+    setText(u.pause, s.paused ? 'Fortsetzen' : 'Pausieren');
+  });
+  Object.keys(ui.cs).forEach(function (g) {
+    var sec = ui.cs[g], good = DATA.goods[g];
+    sec.box.hidden = !shown[g];
+    var html = '<span>' + (contractsCollapsed[g] ? '▸ ' : '▾ ') + good.icon + ' ' + good.name + '</span>' +
+      '<span class="small">' + (active[g] || 0) + ' von ' + (shown[g] || 0) + ' aktiv</span>';
+    if (sec.headHtml !== html) { sec.head.innerHTML = html; sec.headHtml = html; }
+  });
+  var sum = '<span><b>' + nActive + '</b> von ' + nShown + ' Verträgen aktiv</span>' +
+    '<span>Liefert bis zu ≈ <b>' + money(total) + '</b> / Min.</span>';
+  var sumEl = $('#contractsSummary');
+  if (sumEl._h !== sum) { sumEl.innerHTML = sum; sumEl._h = sum; }
+}
+
+function qfmt(q) { return '★' + nf1.format(Math.round(q * 10) / 10); }
+function pctText(x) {          // 1,12 -> "+12 %", 0,93 -> "−7 %"
+  var v = Math.round((x - 1) * 100);
+  return (v > 0 ? '+' : (v < 0 ? '−' : '±')) + nf0.format(Math.abs(v)) + ' %';
+}
+function starsText(n) {
+  var s = '';
+  for (var i = 1; i <= DATA.quality.maxStar; i++) s += (i <= n ? '★' : '☆');
+  return s;
+}
+
+var qualityCollapsed = {};      // eingeklappte Qualitätsgruppen
+function qualityGroupOf(g) {
+  var p = producerOf(g), ind = p && DATA.industries[p.industry];
+  return (ind && ind.group) || DATA.groups[0].id;
+}
+function buildQuality() {
+  var root = $('#qualityCards');
+  root.innerHTML = '';
+  ui.qs = {};
+  DATA.groups.forEach(function (gr) {
+    var box = el('div', 'csec');
+    var head = el('button', 'cshead');
+    var grid = el('div', 'qgrid');
+    box.appendChild(head); box.appendChild(grid); root.appendChild(box);
+    var sec = ui.qs[gr.id] = { box: box, head: head, grid: grid, gr: gr, goods: [] };
+    head.addEventListener('click', function () { qualityCollapsed[gr.id] = !qualityCollapsed[gr.id]; updateQuality(); });
+  });
+  Object.keys(DATA.goods).forEach(function (g) {
+    var good = DATA.goods[g], sec = ui.qs[qualityGroupOf(g)];
+    sec.goods.push(g);
+    var card = el('div', 'card qcard',
+      '<div class="row">' +
+        '<div class="title"><span class="ico">' + good.icon + '</span>' +
+          '<div><strong>' + good.name + '</strong><div class="stars" data-r="stars"></div></div></div>' +
+        '<div class="price"><b data-r="bonus"></b></div>' +
+      '</div>' +
+      '<div class="bar" data-r="barwrap"><i data-r="bar"></i><u style="left:25%"></u><u style="left:50%"></u><u style="left:75%"></u></div>' +
+      '<div class="small" data-r="prog"></div>' +
+      '<div class="small" data-r="req"></div>' +
+      '<div class="small down" data-r="warn" hidden></div>' +
+      '<div class="qdetails" data-r="details" hidden>' +
+        '<div class="small mute" data-r="stock"></div>' +
+        '<div class="small mute" data-r="chain"></div>' +
+        '<div class="small mute" data-r="hint"></div>' +
+      '</div>' +
+      '<div class="row actions"><button class="btn primary" data-r="up"></button>' +
+        '<button class="btn" data-r="more">Details ▾</button></div>');
+    sec.grid.appendChild(card);
+    var u = {
+      card: card, stars: ref(card, 'stars'), bonus: ref(card, 'bonus'), stock: ref(card, 'stock'), chain: ref(card, 'chain'),
+      barwrap: ref(card, 'barwrap'), bar: ref(card, 'bar'), prog: ref(card, 'prog'), hint: ref(card, 'hint'),
+      req: ref(card, 'req'), up: ref(card, 'up'), warn: ref(card, 'warn'), details: ref(card, 'details'),
+      more: ref(card, 'more'), open: false
+    };
+    u.up.addEventListener('click', function () { upgradeStar(g); update(); });
+    u.more.addEventListener('click', function () {
+      u.open = !u.open; u.details.hidden = !u.open; u.more.textContent = u.open ? 'Details ▴' : 'Details ▾';
+    });
+    ui.q[g] = u;
+  });
+}
+
+function buildLab() {
+  var L = DATA.lab, root = $('#lab');
+  root.innerHTML = '';
+  var card = el('div', 'card',
+    '<div class="row">' +
+      '<div class="title"><span class="ico">' + L.icon + '</span>' +
+        '<div><strong>' + L.name + '</strong><div class="small mute" data-r="count"></div></div></div>' +
+      '<div class="small mute" data-r="rate"></div>' +
+    '</div>' +
+    '<div class="recipe small">Kostenlos → <b>' + L.rp + ' 🔬 Forschungspunkt</b> · ' + L.time + ' s</div>' +
+    '<div class="bar"><i data-r="bar"></i></div>' +
+    '<div class="small mute" data-r="status"></div>' +
+    '<div class="row actions">' +
+      '<button class="btn primary" data-r="run">Forschen</button>' +
+      '<button class="btn" data-r="buy"></button>' +
+      '<button class="btn" data-r="mgr"></button>' +
+    '</div>');
+  root.appendChild(card);
+  var u = {
+    count: ref(card, 'count'), rate: ref(card, 'rate'), bar: ref(card, 'bar'), status: ref(card, 'status'),
+    run: ref(card, 'run'), buy: ref(card, 'buy'), mgr: ref(card, 'mgr')
+  };
+  u.run.addEventListener('click', function () { startLab(); update(); });
+  u.buy.addEventListener('click', function () { buyLab(); update(); });
+  u.mgr.addEventListener('click', function () { buyLabManager(); update(); });
+  ui.lab = u;
+}
+function updateLab() {
+  var L = DATA.lab, l = state.lab, u = ui.lab;
+  setText(u.count, 'Anlagen: ' + l.count + ' (+ du selbst)');
+  setText(u.rate, '≈ ' + nf1.format(L.rp * labRuns() * 60 / L.time) + ' 🔬 / Min.');
+  u.bar.style.width = (l.running ? Math.min(100, l.progress / L.time * 100) : 0) + '%';
+  setText(u.status, l.running ? 'Forscht … (' + l.batch + '×)' : (l.manager ? 'Startet gleich …' : 'Bereit'));
+  u.run.disabled = l.running;
+  setText(u.run, l.manager ? 'Manuell starten' : 'Forschen');
+  var c = labCost();
+  setText(u.buy, '+1 Anlage · ' + money(c));
+  u.buy.disabled = state.money < c;
+  if (l.manager) { setText(u.mgr, '✓ Manager arbeitet'); u.mgr.disabled = true; }
+  else { setText(u.mgr, 'Manager · ' + money(L.managerCost)); u.mgr.disabled = state.money < L.managerCost; }
+}
+
+function updateQuality() {
+  var Q = DATA.quality;
+  updateLab();
+  Object.keys(DATA.goods).forEach(function (g) {
+    var u = ui.q[g], st = state.star[g], info = nextStarInfo(g);
+    u.card.hidden = !goodVisible(g);
+    if (u.card.hidden) return;
+    setText(u.stars, starsText(st));
+    u.stars.className = 'stars' + (st >= Q.maxStar ? ' gold' : '');
+    setText(u.bonus, 'Wert +' + nf0.format(Q.bonus[st] * 100) + ' %');
+    setText(u.stock, 'Im Lager: ' + qfmt(state.qual[g]) + (state.inv[g] >= 1 ? '' : ' (leer)'));
+
+    var p = producerOf(g), chain = '', made = st;
+    if (p) {
+      made = outputQuality(p, g);
+      var ins = Object.keys(p.inputs);
+      if (ins.length) {
+        chain = 'Zutaten im Lager: ' + ins.map(function (i) {
+          return DATA.goods[i].icon + ' ' + DATA.goods[i].name + ' ' + qfmt(state.qual[i]);
+        }).join(' · ') + '. ';
+      }
+      chain += 'Wird gerade in ' + qfmt(made) + ' hergestellt' +
+        (made < st - 1e-9 ? ' – die Zutaten bremsen.' : '.');
+    }
+    setText(u.chain, chain);
+    var warn = '';
+    if (made < st - 1e-9) warn = '⚠ Die Zutaten bremsen: Es entsteht nur ' + qfmt(made) + '.';
+    else if (!info.done && info.isMaster && made < Q.maxStar - 1 - 1e-9) {
+      warn = '⚠ Meisterprüfung: Es entsteht nur ' + qfmt(made) + '. Die Zutaten müssen ★5 haben, sonst zählen die Stücke nicht.';
+    }
+    setText(u.warn, warn); u.warn.hidden = !warn;
+
+    if (info.done) {
+      u.barwrap.classList.remove('marks');
+      u.bar.style.width = '100%';
+      setText(u.prog, 'Höchste Stufe erreicht: Meisterware.');
+      setText(u.hint, '');
+      if (u.reqHtml) { u.req.innerHTML = ''; u.reqHtml = ''; }
+      u.up.hidden = true;
+      return;
+    }
+    u.up.hidden = false;
+    u.barwrap.classList.toggle('marks', info.isMaster);
+    u.bar.style.width = Math.min(100, info.have / info.need * 100) + '%';
+    setText(u.prog, (info.isMaster ? 'Meisterprüfung: ' : 'Erfahrung: ') + nf0.format(Math.min(info.have, info.need)) +
+      ' / ' + nf0.format(info.need) + (info.isMaster ? ' Stück in ★5-Qualität hergestellt' : ' Stück hergestellt'));
+    var hint = 'Nächster Stern: Wert +' + nf0.format(Q.bonus[info.target] * 100) + ' % (jetzt +' +
+      nf0.format(Q.bonus[st] * 100) + ' %).';
+    setText(u.hint, hint);
+    var okM = state.money >= info.cost, okR = state.rp >= info.rp;
+    var reqHtml = 'Kosten: <b class="' + (okM ? '' : 'down') + '">' + money(info.cost) + '</b> und <b class="' +
+      (okR ? '' : 'down') + '">' + info.rp + ' 🔬</b> Forschungspunkte';
+    if (u.reqHtml !== reqHtml) { u.req.innerHTML = reqHtml; u.reqHtml = reqHtml; }
+    setText(u.up, 'Auf ★' + info.target + ' aufwerten');
+    u.up.disabled = !info.ready || !okM || !okR;
+  });
+  updateQualityGroups();
+}
+function updateQualityGroups() {
+  var Q = DATA.quality, ready = 0, master = 0, total = 0;
+  DATA.groups.forEach(function (gr) {
+    var sec = ui.qs[gr.id], vis = 0, rdy = 0;
+    sec.goods.forEach(function (g) {
+      var u = ui.q[g];
+      if (!goodVisible(g)) { u.card.hidden = true; return; }
+      vis++; total++;
+      var info = nextStarInfo(g);
+      if (info.done) master++;
+      else if (info.ready && state.money >= info.cost && state.rp >= info.rp) rdy++;
+      u.card.hidden = !!qualityCollapsed[gr.id];
+    });
+    ready += rdy;
+    sec.box.hidden = !vis;
+    var html = '<span>' + (qualityCollapsed[gr.id] ? '▸ ' : '▾ ') + gr.icon + ' ' + gr.name + '</span>' +
+      '<span class="small' + (rdy ? ' up' : '') + '">' + (rdy ? rdy + ' bereit zum Aufwerten' : vis + ' Waren') + '</span>';
+    if (sec.headHtml !== html) { sec.head.innerHTML = html; sec.headHtml = html; }
+  });
+  var sum = '<span><b>' + ready + '</b> von ' + total + ' Waren bereit zum Aufwerten</span>' +
+    '<span><b>' + master + '</b> auf Höchststufe</span>';
+  var el2 = $('#qualitySummary');
+  if (el2._h !== sum) { el2.innerHTML = sum; el2._h = sum; }
+}
+
+function buildPerks() {
+  var root = $('#perks');
+  root.innerHTML = '';
+  DATA.perks.forEach(function (p) {
+    var card = el('div', 'card',
+      '<div class="row"><div class="title"><span class="ico">' + p.icon + '</span>' +
+        '<div><strong>' + p.name + '</strong><div class="small mute">' + p.desc + '</div></div></div></div>' +
+      '<div class="row actions"><button class="btn primary" data-r="buy"></button></div>');
+    root.appendChild(card);
+    var btn = ref(card, 'buy');
+    btn.addEventListener('click', function () { buyPerk(p.id); update(); });
+    ui.perks[p.id] = { card: card, btn: btn };
+  });
+}
+
+/* Aufträge & Ereignisse: Oberfläche */
+function clock(sec) { sec = Math.max(0, Math.ceil(sec)); var m = Math.floor(sec / 60), r = sec % 60; return m + ':' + (r < 10 ? '0' : '') + r; }
+var ordersKey = '';
+function buildOrders() {
+  var root = $('#orders'); root.innerHTML = ''; ui.o = {};
+  ordersKey = state.orders.list.map(function (o) { return o.id; }).join(',');
+  if (!state.orders.list.length) {
+    root.appendChild(el('div', 'card small mute', isUnlocked('tipOrders')
+      ? 'Gerade liegt kein Auftrag vor. Neue Kunden melden sich alle paar Minuten.' : 'Noch keine Aufträge.'));
+    return;
+  }
+  state.orders.list.forEach(function (o) {
+    var gd = DATA.goods[o.good];
+    var card = el('div', 'card crow ocard',
+      '<div class="cmain"><span class="ico">' + (o.kind === 'buyer' ? '🚚' : '📋') + '</span><div>' +
+        '<strong>' + o.who + '</strong> <span class="badge">' + gd.icon + ' ab ★' + o.minStar + '</span>' +
+        '<div class="small" data-r="terms"></div>' +
+        '<div class="okpi small"><span data-r="stock"></span><span data-r="left"></span></div>' +
+      '</div></div>' +
+      '<div class="cact"><button class="btn primary" data-r="go">Liefern</button><button class="btn" data-r="no">Ablehnen</button></div>');
+    root.appendChild(card);
+    var u = { terms: ref(card, 'terms'), stock: ref(card, 'stock'), left: ref(card, 'left'), go: ref(card, 'go'), no: ref(card, 'no'), o: o };
+    u.go.addEventListener('click', function () { deliverOrder(o.id); update(); });
+    u.no.addEventListener('click', function () { declineOrder(o.id); update(); });
+    ui.o[o.id] = u;
+  });
+}
+function updateOrders() {
+  var key = state.orders.list.map(function (o) { return o.id; }).join(',');
+  var open = state.orders.list.length;
+  if (ordersNavBtn) {
+    var k = String(open);
+    if (k !== ordersNavKey) { ordersNavKey = k; ordersNavBtn.innerHTML = '<span class="ni">📋</span>Aufträge' + (open ? ' <b>(' + open + ')</b>' : ''); }
+  }
+  if (currentView !== 'orders') return;
+  if (key !== ordersKey) buildOrders();
+  state.orders.list.forEach(function (o) {
+    var u = ui.o && ui.o[o.id]; if (!u) return;
+    var gd = DATA.goods[o.good], ok = orderOk(o), have = Math.floor(state.inv[o.good]);
+    setText(u.terms, nf0.format(o.qty) + ' ' + gd.icon + ' ' + gd.name + ' · ' + money(o.unit) + ' pro Stück · gesamt ' + money(o.qty * o.unit) +
+      ' (' + nf0.format((o.unit / (gd.base * (1 + qBonus(o.minStar))) - 1) * 100) + ' % Aufschlag)');
+    setText(u.stock, 'Lager: ' + nf0.format(have) + ' / ' + nf0.format(o.qty) + (ok ? '' : ' · Qualität zu niedrig (ab ★' + o.minStar + ')'));
+    u.stock.className = (ok && have >= o.qty) ? 'up' : (ok ? '' : 'down');
+    setText(u.left, 'Frist: ' + clock(o.left));
+    u.go.disabled = !orderCanDeliver(o);
+  });
+  var tot = '<span><b>' + open + '</b> von ' + DATA.orders.max + ' Aufträgen offen</span><span>Erledigt: <b>' + nf0.format(state.orders.done) +
+    '</b> · Verdient damit: <b>' + money(state.orders.earned) + '</b></span>';
+  var sEl = $('#ordersSummary'); if (sEl._h !== tot) { sEl.innerHTML = tot; sEl._h = tot; }
+}
+function eventLabel(e) {
+  var T = DATA.events.types.filter(function (t) { return t.id === e.type; })[0];
+  if (e.type === 'festival') return T.icon + ' ' + T.title + ': Läden +' + nf0.format((e.mult - 1) * 100) + ' % Kundschaft';
+  var gd = DATA.goods[e.good];
+  return T.icon + ' ' + T.title + ': ' + gd.icon + ' ' + gd.name + ' ' + (e.mult >= 1 ? '+' : '−') + nf0.format(Math.abs(e.mult - 1) * 100) + ' %';
+}
+function updateEventBar() {
+  var bar = $('#evBar'), html = '';
+  state.events.active.forEach(function (e) {
+    html += '<span class="evchip ' + (e.type === 'slump' ? 'bad' : 'good') + '" title="' + (DATA.events.types.filter(function (t) { return t.id === e.type; })[0].text.replace('{good}', e.good ? DATA.goods[e.good].name : '')) + '">' +
+      eventLabel(e) + ' <b>' + clock(e.left) + '</b></span>';
+  });
+  var n = state.orders.list.length;
+  if (n && currentView !== 'orders' && isUnlocked('tipOrders')) html += '<span class="evchip info" data-go="orders">📋 ' + n + (n === 1 ? ' offener Auftrag' : ' offene Aufträge') + '</span>';
+  if (bar._h !== html) { bar.innerHTML = html; bar._h = html; bar.hidden = !html; }
+}
+$('#evBar').addEventListener('click', function (ev) {
+  var t = ev.target.closest && ev.target.closest('[data-go]');
+  if (t && tabsOrders) { currentView = 'orders'; buildTabs(); applyView(); update(); }
+});
+
+/* Hinweise und Freischaltungen: jede Meldung erscheint nur einmal und wird gespeichert */
+var notices = [];
+function isUnlocked(id) { return !!state.unlocked[id]; }
+function showNotice() {
+  var u = notices.shift();
+  if (!u) { $('#notice').hidden = true; return; }
+  $('#noticeTitle').textContent = u.title;
+  $('#noticeText').textContent = u.text;
+  $('#notice').hidden = false;
+}
+function checkUnlocks() {
+  DATA.unlocks.forEach(function (u) {
+    if (state.unlocked[u.id]) return;
+    if (u.when()) {
+      state.unlocked[u.id] = true;
+      if (!(u.quietOnLoad && firstUnlockPass && fromSave)) notices.push(u);   // alte Spielstände: neue Tabs ohne Hinweis
+    }
+  });
+  firstUnlockPass = false;
+  if (notices.length && $('#notice').hidden) showNotice();
+}
+
+function update() {
+  setText($('#money'), money(state.money));
+  var cut = Date.now() - 60000;
+  while (recent.length && recent[0].t < cut) recent.shift();
+  var inc = 0;
+  recent.forEach(function (x) { inc += x.a; });
+  setText($('#income'), money(inc));
+  var labOn = labAvailable();
+  $('#rpStat').hidden = !labOn;
+  if (labOn) setText($('#rp'), nf0.format(state.rp));
+
+  DATA.buildings.forEach(function (b) {
+    var s = state.b[b.id], u = ui.b[b.id];
+    ui.cards[b.id].hidden = !(b.industry === currentIndustry && buildingVisible(b));
+    var cap = 1 + s.count;
+    setText(u.count, 'Anlagen: ' + s.count + ' (+ du selbst)');
+    var out = Object.keys(b.outputs)[0];
+    var bt = buildingTime(b);
+    setText(u.time, nf1.format(bt));
+    var perMin = b.outputs[out] * outMul(b) * cap * 60 / bt;
+    setText(u.rate, '≈ ' + nf1.format(perMin) + ' ' + DATA.goods[out].name + ' / Min.');
+    u.bar.style.width = (s.running ? Math.min(100, s.progress / bt * 100) : 0) + '%';
+
+    var status;
+    if (s.running) status = 'Produziert ' + s.batch + '× …';
+    else {
+      var miss = missingGood(b), full = fullGood(b);
+      if (miss) status = 'Wartet auf: ' + DATA.goods[miss].name;
+      else if (full) status = 'Lager voll: ' + DATA.goods[full].name + ' – verkaufen oder Lager ausbauen';
+      else status = s.manager ? 'Startet gleich …' : 'Bereit';
+    }
+    setText(u.status, status);
+    u.run.disabled = s.running || possibleBatches(b) < 1;
+    setText(u.run, s.manager ? 'Manuell starten' : 'Produzieren');
+
+    var c = buildingCost(b);
+    setText(u.buy, '+1 Anlage · ' + money(c));
+    u.buy.disabled = state.money < c;
+    if (s.manager) { setText(u.mgr, '✓ Manager arbeitet'); u.mgr.disabled = true; }
+    else { setText(u.mgr, 'Manager · ' + money(b.managerCost)); u.mgr.disabled = state.money < b.managerCost; }
+  });
+
+  Object.keys(DATA.goods).forEach(function (g) {
+    var u = ui.g[g], p = price(g), base = DATA.goods[g].base * valueMult(g);
+    var stock = Math.floor(state.inv[g]);
+    var cap = capacity(g);
+    setText(u.stock, nf0.format(stock));
+    setText(u.cap, nf0.format(cap));
+    u.fill.style.width = Math.min(100, state.inv[g] / cap * 100) + '%';
+    u.fill.className = state.inv[g] >= cap - 1e-6 ? 'full' : '';
+    var sc = storageCost(g);
+    var nextCap = Math.round(DATA.storage.base * Math.pow(DATA.storage.growth, state.storage[g] + 1));
+    setText(u.store, 'Lager ' + nf0.format(cap) + ' → ' + nf0.format(nextCap) + ' · ' + money(sc));
+    u.store.disabled = state.money < sc;
+    if (state.perks.bookkeeping) {
+      var bh = balanceHtml(g);
+      if (u.balHtml !== bh) { u.bal.innerHTML = bh; u.balHtml = bh; }
+      u.bal.hidden = false;
+    } else { u.bal.hidden = true; }
+    setText(u.price, money(p));
+    setText(u.norm, 'Normalpreis ' + money(base));
+    setText(u.lage, 'Marktlage ' + pctText(state.market[g] * eventMult(g)) + ' · Verkaufsdruck ' + pctText(state.pressure[g]));
+    var qOn = isUnlocked('tipQuality');
+    u.qual.hidden = !qOn;
+    if (qOn) {
+      var avgQ = stockAvgQual(g), mixed = Math.abs(avgQ - state.qual[g]) >= 0.05;
+      setText(u.qual, 'Qualität im Lager: ' + (mixed ? 'Ø ' + qfmt(avgQ) + ' · nächste Ware ' : '') + qfmt(state.qual[g]) + ' · Wert +' + nf0.format(qBonus(state.qual[g]) * 100) + ' %');
+    }
+    u.price.className = p > base * 1.1 ? 'up' : (p < base * 0.9 ? 'down' : '');
+    var td = lastTrend[g] || 0;                     // Richtung der letzten Preisrunde
+    var tr = td > 0 ? '▲' : (td < 0 ? '▼' : '–');
+    setText(u.trend, tr);
+    u.trend.className = tr === '▲' ? 'up' : (tr === '▼' ? 'down' : 'mute');
+    var wantQ = sellQty(u), qq = sellQuote(g, wantQ);
+    u.sq.disabled = stock < 1;
+    u.shalf.disabled = stock < 2;
+    u.sall.disabled = stock < 1;
+    setText(u.quote, qq.n > 0 ? (qq.n < wantQ ? 'nur ' + nf0.format(qq.n) + ' im Lager · ' : '') + '≈ ' + money(qq.rev) : '');
+    var lv = state.sellers[g];
+    var waiting = lv > 0 && marketFactor(g) < state.minPct[g] / 100 - 1e-9;
+    var keep = reserveUnits(g), holding = lv > 0 && keep > 0 && stock <= keep + 1e-9;
+    setText(u.seller, lv > 0 ? '🧑‍💼 Händler verkauft bis zu ' + lv + ' pro Sekunde' +
+      (waiting ? ' – wartet, der Preis ist unter deiner Grenze' : (holding ? ' – pausiert, die Reserve ist erreicht' : '')) : '');
+    u.resrow.hidden = lv < 1;
+    setText(u.resv, nf0.format(state.reserve[g] || 0) + ' %');
+    setText(u.resn, keep > 0 ? '(' + nf0.format(keep) + ' Stück)' : '(keine Reserve)');
+    u.minrow.hidden = lv < 1;
+    setText(u.minv, nf0.format(state.minPct[g]) + ' %');
+    var hc = sellerCost(g);
+    setText(u.hire, (lv === 0 ? 'Händler anheuern' : 'Händler Stufe ' + (lv + 1)) + ' · ' + money(hc));
+    u.hire.disabled = state.money < hc;
+    u.fire.hidden = lv < 1;
+    if (lv >= 1) {
+      var armed = u.fire._armed && u.fire._armed();
+      setText(u.fire, armed ? 'Wirklich kündigen? Nochmal klicken · +' + money(fireRefund(g)) : 'Händler kündigen · +' + money(fireRefund(g)));
+      u.fire.className = armed ? 'btn warn' : 'btn';
+    }
+  });
+  checkUnlocks();
+  DATA.perks.forEach(function (p) {
+    var u = ui.perks[p.id], owned = !!state.perks[p.id];
+    u.card.hidden = owned || !isUnlocked(p.unlock);   // nach dem Kauf blendet sich die Karte aus
+    setText(u.btn, owned ? '✓ Gekauft' : 'Kaufen · ' + money(p.cost));
+    u.btn.disabled = owned || state.money < p.cost;
+  });
+
+  var anyShop = false, sInc = {}, sCnt = {}, sOpen = 0, sTotal = 0;
+  DATA.shops.forEach(function (sh) {
+    var u = ui.shops[sh.id], s = state.shops[sh.id], good = DATA.goods[sh.good], gid = ui.shopGroup[sh.id];
+    var visible = (s.level > 0 || isUnlocked(sh.unlock || 'tipShops'));
+    u.card.hidden = !visible || !!shopsCollapsed[gid];
+    if (visible) { anyShop = true; sCnt[gid] = (sCnt[gid] || 0) + 1; }
+    var cost = shopCost(sh);
+    u.mgr.hidden = s.level < 1;
+    if (s.level >= 1) {
+      if (s.manager) { setText(u.mgr, '✓ Preis-Manager aktiv'); u.mgr.disabled = true; }
+      else { setText(u.mgr, 'Preis-Manager · ' + money(sh.managerCost)); u.mgr.disabled = state.money < sh.managerCost; }
+      u.minus.disabled = u.plus.disabled = !!s.manager;
+    }
+    if (s.level < 1) {
+      u.body.hidden = true;
+      setText(u.level, 'Noch nicht eröffnet · ' + good.icon + ' ' + good.name);
+      setText(u.inc, '');
+      setText(u.buy, 'Laden eröffnen · ' + money(cost));
+    } else {
+      u.body.hidden = false;
+      setText(u.level, 'Stufe ' + s.level + ' · ' + good.icon + ' ' + good.name);
+      setText(u.buy, 'Ausbauen auf Stufe ' + (s.level + 1) + ' · ' + money(cost));
+      setText(u.price, money(s.price));
+      setText(u.market, ' Markt: ' + money(price(sh.good)));
+      var r = shopRates(sh), inc = r.flow * s.price;
+      sInc[gid] = (sInc[gid] || 0) + inc; sOpen++;
+      setText(u.inc, '≈ ' + money(inc) + ' / Min.');
+      var html = 'Nachfrage <b>' + nf1.format(r.demand) + '</b> · Kapazität <b>' + nf1.format(r.capacity) +
+        '</b> · Verkauf <b>' + nf1.format(r.flow) + '</b> pro Min.' +
+        (state.inv[sh.good] < 1 ? '<br><span class="down">Regal leer – im Lager fehlt ' + good.name + '.</span>' : '');
+      if (u.statsHtml !== html) { u.stats.innerHTML = html; u.statsHtml = html; }
+    }
+    if (visible) sTotal++;
+    u.buy.disabled = state.money < cost;
+  });
+  var sTot = 0;
+  Object.keys(ui.ss).forEach(function (gid) {
+    var sec = ui.ss[gid];
+    sec.box.hidden = !sCnt[gid];
+    sTot += sInc[gid] || 0;
+    var html = '<span>' + (shopsCollapsed[gid] ? '▸ ' : '▾ ') + sec.gr.icon + ' ' + sec.gr.name + '</span>' +
+      '<span class="small">≈ ' + money(sInc[gid] || 0) + ' / Min.</span>';
+    if (sec.headHtml !== html) { sec.head.innerHTML = html; sec.headHtml = html; }
+  });
+  var ssum = '<span><b>' + sOpen + '</b> von ' + sTotal + ' Läden offen</span><span>Einnahmen aus Läden ≈ <b>' + money(sTot) + '</b> / Min.</span>';
+  var sEl = $('#shopsSummary');
+  if (sEl._h !== ssum) { sEl.innerHTML = ssum; sEl._h = ssum; }
+  if (industryKey() !== tabsIndustryKey || isUnlocked('tipBranches') !== tabsBranches) buildTabs();
+  if (currentView === 'branches') updateBranches();
+  updateSupply();
+  if (shopsAvailable() !== tabsShops) buildTabs();
+  if (isUnlocked('tipContracts') !== tabsContracts) buildTabs();
+  if (isUnlocked('tipResearch') !== tabsResearch) buildTabs();
+  if (currentView === 'research') updateResearch();
+  if (currentView === 'contracts') updateContracts();
+  if (isUnlocked('tipOrders') !== tabsOrders) buildTabs();
+  updateOrders(); updateEventBar();
+  if (isUnlocked('tipExchange') !== tabsExchange) buildTabs();
+  if (currentView === 'exchange') updateExchange();
+  if (isUnlocked('tipQuality') !== tabsQuality) buildTabs();
+  if (currentView === 'quality') updateQuality();
+}
+
+/* ============================================================
+   START
+   ============================================================ */
+buildTabs();
+buildBuildings();
+buildMarket();
+buildPerks();
+buildShops();
+buildContracts();
+buildExchange();
+buildOrders();
+buildResearch();
+buildBranches();
+buildSupply();
+buildQuality();
+buildLab();
+applyIndustryFilter();
+applyView();
+
+$('#bannerClose').addEventListener('click', function () { $('#banner').hidden = true; });
+$('#noticeClose').addEventListener('click', function () { showNotice(); });
+
+var resetArmed = false, resetTimer = null;
+$('#reset').addEventListener('click', function () {
+  var btn = $('#reset');
+  if (!resetArmed) {
+    resetArmed = true; btn.textContent = 'Wirklich alles löschen? Nochmal klicken';
+    resetTimer = setTimeout(function () { resetArmed = false; btn.textContent = 'Spielstand zurücksetzen'; }, 4000);
+    return;
+  }
+  clearTimeout(resetTimer);
+  noSave = true; btn.disabled = true; btn.textContent = 'Setze zurück …';
+  var cloudDone = (typeof WICloud !== 'undefined') ? WICloud.pushForce(defaultState()) : Promise.resolve(true);
+  cloudDone.then(function (ok) {
+    if (!ok) { noSave = false; resetArmed = false; btn.disabled = false; btn.textContent = 'Zurücksetzen fehlgeschlagen (keine Verbindung?)'; return; }
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    location.reload();
+  });
+});
+
+/* Spielstand übertragen: Export als Text ("WI1:" + Base64 von JSON), Import mit Prüfung und Neustart */
+function xferMsg(t, bad) { var m = $('#xferMsg'); m.textContent = t; m.className = 'small ' + (bad ? 'down' : 'up'); }
+function exportText() {
+  save();
+  var json = JSON.stringify(state);
+  return 'WI1:' + btoa(unescape(encodeURIComponent(json)));
+}
+function parseExport(txt) {
+  txt = (txt || '').trim();
+  if (!txt) throw new Error('Kein Text eingefügt.');
+  var json = txt;
+  if (txt.indexOf('WI1:') === 0) json = decodeURIComponent(escape(atob(txt.slice(4).replace(/\s+/g, ''))));
+  var o = JSON.parse(json);
+  if (!o || typeof o !== 'object' || typeof o.money !== 'number' || !o.b) throw new Error('Das ist kein gültiger Spielstand.');
+  return json;
+}
+var importArmed = false, importTimer = null;
+function doImport(txt) {
+  var json;
+  try { json = parseExport(txt); } catch (e) { xferMsg('Import nicht möglich: ' + (e instanceof SyntaxError || e.name === 'InvalidCharacterError' || e.name === 'URIError' ? 'Das ist kein gültiger Spielstand.' : e.message), true); return; }
+  var btn = $('#xferImport');
+  if (!importArmed) {
+    importArmed = true; btn.textContent = 'Aktuellen Stand überschreiben? Nochmal klicken';
+    importTimer = setTimeout(function () { importArmed = false; btn.textContent = 'Importieren (Text laden)'; }, 5000);
+    return;
+  }
+  clearTimeout(importTimer);
+  noSave = true;
+  var cloudDone = (typeof WICloud !== 'undefined') ? WICloud.pushForce(JSON.parse(json)) : Promise.resolve(true);
+  cloudDone.then(function (ok) {
+    if (!ok) { noSave = false; xferMsg('Import nicht möglich: Der Cloud-Speicher ist gerade nicht erreichbar.', true); return; }
+    try { localStorage.setItem(SAVE_KEY, json); } catch (e) { noSave = false; xferMsg('Speichern im Browser nicht möglich.', true); return; }
+    location.reload();
+  });
+}
+$('#xferBtn').addEventListener('click', function () { var p = $('#xferPanel'); p.hidden = !p.hidden; });
+$('#xferExport').addEventListener('click', function () {
+  var t = exportText(), ta = $('#xferText');
+  ta.value = t; ta.select();
+  var done = function () { xferMsg('Spielstand exportiert und in die Zwischenablage kopiert.', false); };
+  var fallback = function () {
+    try { ta.select(); document.execCommand('copy'); done(); }
+    catch (e) { xferMsg('Exportiert. Bitte den markierten Text selbst kopieren (Strg+C).', false); }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback); else fallback();
+});
+$('#xferFile').addEventListener('click', function () {
+  var t = exportText();
+  $('#xferText').value = t;
+  try {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
+    a.download = 'wirtschaftsimperium-spielstand.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    xferMsg('Datei „wirtschaftsimperium-spielstand.txt“ gespeichert.', false);
+  } catch (e) { xferMsg('Dateispeichern nicht möglich – nutze „Exportieren“ und kopiere den Text.', true); }
+});
+$('#xferImport').addEventListener('click', function () { doImport($('#xferText').value); });
+$('#xferPick').addEventListener('click', function () { $('#xferInput').click(); });
+$('#xferInput').addEventListener('change', function (ev) {
+  var f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { $('#xferText').value = String(r.result); xferMsg('Datei gelesen. Jetzt „Importieren“ klicken.', false); };
+  r.readAsText(f);
+});
+
+var last = Date.now();
+advanceWithReport((last - (state.savedAt || last)) / 1000);
+update();
+if (fromSave) { currentIndustry = lastIndustry(); buildTabs(); applyIndustryFilter(); update(); }   // mit altem Spielstand im letzten Betrieb starten
+
+setInterval(function () {
+  var now = Date.now();
+  var dt = (now - last) / 1000;
+  last = now;
+  advanceWithReport(dt);
+  update();
+}, 100);
+setInterval(save, 5000);
+document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
+window.addEventListener('pagehide', save);
+if (typeof WICloud !== 'undefined') WICloud.attach(function () { state.savedAt = Date.now(); return state; }, function () { noSave = true; });
+
+window.__game = {
+  makeOrder: makeOrder, deliverOrder: deliverOrder, declineOrder: declineOrder, tickOrders: tickOrders, orderCanDeliver: orderCanDeliver,
+  startEvent: startEvent, tickEvents: tickEvents, eventMult: eventMult, eventShopMult: eventShopMult, marketFactor: marketFactor, updateOrders: updateOrders, updateEventBar: updateEventBar,
+  get state() { return state; }, DATA: DATA, step: step, startCycle: startCycle,
+  removeStock: removeStock, addToStock: addToStock, stockAvgQual: stockAvgQual,
+  buyBuilding: buyBuilding, buyManager: buyManager, buySeller: buySeller, fireSeller: fireSeller, fireRefund: fireRefund, sellQuote: sellQuote, sell: sell, price: price,
+  capacity: capacity, buyStorage: buyStorage, storageCost: storageCost, isUnlocked: isUnlocked,
+  buyPerk: buyPerk, flows: flows, update: update, shopRates: shopRates, shopCost: shopCost,
+  buyShop: buyShop, changeShopPrice: changeShopPrice, buyShopManager: buyShopManager, shopBestPrice: shopBestPrice, qBonus: qBonus, valueMult: valueMult,
+  reserveUnits: reserveUnits, changeReserve: changeReserve,
+  marketAbsorb: marketAbsorb, exchangeStatus: exchangeStatus, updateExchange: updateExchange, sparkSvg: sparkSvg,
+  get xstat() { return xstat; },
+  changeMinPct: changeMinPct, marketFactor: marketFactor, marketTick: marketTick,
+  get marketTimer() { return marketTimer; },
+  updateQuality: updateQuality, startLab: startLab, buyLab: buyLab, buyLabManager: buyLabManager, labCost: labCost,
+  labAvailable: labAvailable, outputQuality: outputQuality, nextStarInfo: nextStarInfo, upgradeStar: upgradeStar, starMoney: starMoney,
+  contractQualityOk: contractQualityOk, foundBranch: foundBranch, buyResearch: buyResearch, rlevel: rlevel, rbonus: rbonus, buildingTime: buildingTime, researchNext: researchNext, recoverRate: recoverRate,
+  signContract: signContract, upgradeContract: upgradeContract, contractUpCost: contractUpCost, ctrQty: ctrQty, toggleContract: toggleContract, contractPrice: contractPrice, contractLocked: contractLocked,
+  get cstat() { return cstat; },
+  get notices() { return notices; }
+};
+};
+if (typeof WICloud === 'undefined') window.__wiStartGame(); else WICloud.boot(window.__wiStartGame);
+</script>
+</body>
+</html>
