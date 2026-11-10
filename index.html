@@ -156,6 +156,21 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
 .seg button{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:8px;cursor:pointer}
 .seg button.on{background:var(--acc);color:var(--acc-ink)}
 [hidden]{display:none !important}
+.segx{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);margin:0 0 10px}
+.segx button{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:10px 6px;cursor:pointer}
+.segx button.on{background:var(--acc);color:var(--acc-ink);font-weight:600}
+.brow{display:grid;grid-template-columns:44px minmax(0,1fr) 80px 150px 170px;gap:2px 10px;align-items:center;padding:10px 14px;margin-bottom:6px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.brow.me{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.brow .rk{font-weight:650;font-variant-numeric:tabular-nums;text-align:center}
+.brow .bn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brow .bv,.brow .bt{text-align:right;font-variant-numeric:tabular-nums}
+.brow .bl{font-variant-numeric:tabular-nums}
+@media (max-width:820px){
+  .brow{grid-template-columns:40px minmax(0,1fr) auto;padding:9px 12px}
+  .brow .bl{text-align:right}
+  .brow .bv{grid-column:2/4;text-align:left;white-space:nowrap}
+  .brow .bt{grid-column:2/4;text-align:left;font-size:.82rem;color:var(--mute)}
+}
 </style>
 </head>
 <body>
@@ -246,6 +261,14 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
     <p class="small mute">Kunden melden sich mit Sonderaufträgen: eine feste Menge in der gewünschten Qualität bis zu einer Frist, zu einem Aufschlag auf den Normalpreis. Du lieferst direkt aus deinem Lager. Läuft die Frist ab, verfällt der Auftrag ohne Strafe. Aufträge laufen nur, solange du spielst.</p>
     <div class="card csum" id="ordersSummary"></div>
     <div id="orders"></div>
+  </div>
+
+  <div id="boardView" hidden>
+    <h2>Bestenliste</h2>
+    <p class="small mute">Alle Spieler im Vergleich. Das Level richtet sich nach dem insgesamt verdienten Geld: Jedes Level braucht doppelt so viel wie das davor. „Ø pro Min.“ ist dein durchschnittliches Einkommen der letzten 60 Spielminuten, Zeit ohne Spielen zählt mit. Die Liste wird etwa einmal pro Minute aktualisiert.</p>
+    <div class="card" id="boardMe"></div>
+    <div class="segx" id="boardSort"><button type="button" data-s="income_avg" class="on">Ø Einnahmen / Min.</button><button type="button" data-s="total_earned">Gesamt verdient</button></div>
+    <div id="boardList"></div>
   </div>
 
   <div id="exchangeView" hidden>
@@ -392,7 +415,7 @@ function ensureToken() {
 }
 
 /* ---------- Zustand ---------- */
-var startFn = null, getSave = null, haltFn = null;
+var startFn = null, getSave = null, haltFn = null, getStats = null;
 var lastTs = null;            // Zeitstempel der letzten Cloud-Version, auf der dieses Gerät aufbaut
 var paused = false, busy = false, online = true, guest = false, started = false, okTime = 0, timer = null;
 
@@ -491,12 +514,33 @@ function pushNow(opts) {
   busy = true; if (!ka) setStat('saving');
   return writeRow(getSave(), 'cond', opts).then(function (res) {
     if (res.conflict) return showConflict();
-    online = true; okTime = Date.now(); setStat();
+    online = true; okTime = Date.now(); setStat(); publishBoard();
   }).catch(function (e) {
     if (e && e.message === 'auth') return;
     online = false; setStat('offline');
   }).then(function () { busy = false; });
 }
+/* Bestenliste: eigenen Eintrag veröffentlichen und die Liste laden */
+function publishBoard() {
+  if (!sess || guest || !getStats) return Promise.resolve();
+  var s = getStats();
+  return ensureToken().then(function (tok) {
+    return http('POST', '/rest/v1/leaderboard?on_conflict=user_id',
+      { user_id: sess.uid, name: sess.name, level: s.level, total_earned: s.total, income_avg: s.avg, updated_at: new Date().toISOString() },
+      tok, { prefer: 'resolution=merge-duplicates,return=minimal' });
+  }).catch(function () {});
+}
+function loadBoard(order) {
+  var col = order === 'total_earned' ? 'total_earned' : 'income_avg';
+  return ensureToken().then(function (tok) {
+    return http('GET', '/rest/v1/leaderboard?select=user_id,name,level,total_earned,income_avg,updated_at&order=' + col + '.desc&limit=100', undefined, tok);
+  }).then(function (r) {
+    if (r.ok && Array.isArray(r.json)) return { rows: r.json, me: sess.uid };
+    var code = String((r.json && (r.json.code || r.json.message)) || '');
+    var e = new Error(r.status === 404 || /42P01|PGRST205|does not exist|schema cache/.test(code) ? 'nobase' : 'http'); throw e;
+  });
+}
+function who() { return { uid: sess && !guest ? sess.uid : null, name: sess ? sess.name : '' }; }
 function showConflict() {
   paused = true; setStat('paused');
   return ensureToken().then(fetchRow).catch(function () { return null; }).then(function (row) {
@@ -516,8 +560,8 @@ function adoptCloud(row) {
 }
 
 /* ---------- Schnittstelle zum Spiel ---------- */
-function attach(getter, halt) {
-  getSave = getter; haltFn = function () { paused = true; halt(); }; started = true;
+function attach(getter, halt, stats) {
+  getSave = getter; haltFn = function () { paused = true; halt(); }; getStats = stats || null; started = true;
   if (guest || !sess) { setStat(); return; }
   setStat();
   setTimeout(function () { if (!lastTs) pushNow(); }, 1500);   // frisches Konto: erste Zeile gleich anlegen
@@ -634,7 +678,7 @@ function boot(start) {
   syncAndStart();
 }
 
-return { boot: boot, attach: attach, pushForce: pushForce, _t: { norm: norm, emailOf: emailOf, passOf: passOf } };
+return { boot: boot, attach: attach, pushForce: pushForce, loadBoard: loadBoard, who: who, _t: { norm: norm, emailOf: emailOf, passOf: passOf } };
 })();
 </script>
 
@@ -1031,7 +1075,7 @@ function defaultState() {
   var s = { money: 30, inv: {}, b: {}, market: {}, sellers: {}, storage: {}, unlocked: {}, perks: {}, shops: {}, contracts: {}, research: {},
             star: {}, xp: {}, master: {}, qual: {}, lots: {}, rp: 0, pressure: {}, minPct: {}, reserve: {}, hist: {},
             lab: { count: 0, manager: false, running: false, batch: 0, progress: 0 },
-            totalEarned: 0, savedAt: Date.now(),
+            totalEarned: 0, eh: [], ehAcc: 0, savedAt: Date.now(),
             orders: { list: [], timer: 60, done: 0, earned: 0, nextId: 1 }, events: { active: [], timer: 600, nextId: 1 } };
   Object.keys(DATA.goods).forEach(function (g) {
     s.inv[g] = 0; s.market[g] = 1; s.sellers[g] = 0; s.storage[g] = 0;
@@ -1058,6 +1102,8 @@ function load() {
     var s = JSON.parse(raw), d = defaultState();
     if (typeof s.money === 'number') d.money = s.money;
     if (typeof s.totalEarned === 'number') d.totalEarned = s.totalEarned;
+    if (Array.isArray(s.eh)) d.eh = s.eh.filter(function (v) { return typeof v === 'number' && isFinite(v); }).slice(-61);
+    if (typeof s.ehAcc === 'number' && s.ehAcc >= 0 && s.ehAcc < 60) d.ehAcc = s.ehAcc;
     if (typeof s.savedAt === 'number') d.savedAt = s.savedAt;
     if (s.unlocked && typeof s.unlocked === 'object') d.unlocked = s.unlocked;
     if (typeof s.rp === 'number' && s.rp >= 0) d.rp = s.rp;
@@ -1881,9 +1927,24 @@ function tickEvents(dt) {
     E.timer = rnd(C.every[0], C.every[1]);
   }
 }
+/* Level und Durchschnittseinkommen (für die Bestenliste) */
+function levelOf(total) { return Math.max(0, Math.floor(Math.log2(1 + (total || 0) / 1000))); }
+function levelBase(l) { return l <= 0 ? 0 : 1000 * (Math.pow(2, l) - 1); }        // so viel Gesamtverdienst braucht Level l
+function tickStats(d) {            // pro Spielminute den Gesamtverdienst merken (letzte 61 Werte = 60 Minuten)
+  if (!state.eh) state.eh = [];
+  if (!state.eh.length) { state.eh.push(state.totalEarned); state.ehAcc = 0; return; }
+  state.ehAcc = (state.ehAcc || 0) + d;
+  while (state.ehAcc >= 60) { state.ehAcc -= 60; state.eh.push(state.totalEarned); if (state.eh.length > 61) state.eh.shift(); }
+}
+function incomeAvg() {
+  var e = state.eh || [];
+  if (e.length < 2) return 0;
+  return Math.max(0, (e[e.length - 1] - e[0]) / (e.length - 1));
+}
+function myStats() { return { level: levelOf(state.totalEarned), total: state.totalEarned, avg: incomeAvg() }; }
 function advance(dt) {
   dt = Math.min(dt, MAX_OFFLINE);
-  while (dt > 0) { var d = Math.min(dt, 0.25); step(d); dt -= d; }
+  while (dt > 0) { var d = Math.min(dt, 0.25); step(d); tickStats(d); dt -= d; }
 }
 function advanceWithReport(dt) {
   if (dt <= 20) { advance(dt); return; }
@@ -1967,6 +2028,7 @@ function buildTabs() {
   if (tabsOrders) ordersNavBtn = viewItem(office, '📋', 'Aufträge', 'orders');
   tabsExchange = isUnlocked('tipExchange');
   if (tabsExchange) viewItem(office, '📈', 'Börse', 'exchange');
+  if (typeof WICloud !== 'undefined') viewItem(office, '🏆', 'Bestenliste', 'board');
   tabsBranches = isUnlocked('tipBranches');
   if (tabsBranches) viewItem(office, '＋', 'Neue Branche', 'branches');
   else navItem(office, '＋', 'Neue Branche (bald)', false, null);
@@ -1982,6 +2044,8 @@ function applyView() {
   $('#exchangeView').hidden = currentView !== 'exchange';
   $('#ordersView').hidden = currentView !== 'orders';
   $('#mobSeg').hidden = currentView !== 'industry';
+  $('#boardView').hidden = currentView !== 'board';
+  if (currentView === 'board') boardAt = 0;
 }
 function applyIndustryFilter() {
   DATA.buildings.forEach(function (b) {
@@ -2861,6 +2925,60 @@ function checkUnlocks() {
   if (notices.length && $('#notice').hidden) showNotice();
 }
 
+var boardSort = 'income_avg', boardAt = 0, boardBusy = false, boardUi = null;
+function whoAgo(ts) {
+  var s = Math.max(0, (Date.now() - Date.parse(ts)) / 1000);
+  if (!isFinite(s)) return '';
+  if (s < 120) return 'gerade aktiv';
+  if (s < 5400) return 'vor ' + Math.round(s / 60) + ' Min.';
+  if (s < 129600) return 'vor ' + Math.round(s / 3600) + ' Std.';
+  return 'vor ' + Math.round(s / 86400) + ' Tagen';
+}
+function buildBoard() {
+  var me = $('#boardMe');
+  me.innerHTML = '<div class="row"><div><b data-r="lv"></b> · <span data-r="nm"></span></div><div class="small">Ø <b data-r="avg"></b> / Min.</div></div>' +
+    '<div class="bar"><i data-r="bar"></i></div><div class="small mute" data-r="next"></div>';
+  boardUi = { lv: ref(me, 'lv'), nm: ref(me, 'nm'), avg: ref(me, 'avg'), bar: ref(me, 'bar'), next: ref(me, 'next') };
+  Array.prototype.forEach.call(document.querySelectorAll('#boardSort button'), function (b) {
+    b.addEventListener('click', function () {
+      boardSort = b.dataset.s; boardAt = 0;
+      Array.prototype.forEach.call(document.querySelectorAll('#boardSort button'), function (x) { x.classList.toggle('on', x === b); });
+      updateBoard();
+    });
+  });
+}
+function boardMsg(t) { var l = $('#boardList'); l.innerHTML = ''; l.appendChild(el('div', 'card small mute', t)); }
+function renderBoard(res) {
+  var l = $('#boardList'); l.innerHTML = '';
+  if (!res.rows.length) { boardMsg('Noch niemand in der Liste. Dein Eintrag erscheint in etwa einer Minute.'); return; }
+  res.rows.forEach(function (r, i) {
+    var row = el('div', 'brow' + (r.user_id === res.me ? ' me' : ''));
+    var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : String(i + 1);
+    var a = el('span', 'rk'); a.textContent = medal;
+    var n = el('span', 'bn'); n.textContent = r.name || 'Spieler';
+    var lv = el('span', 'bl'); lv.textContent = '⭐ Level ' + r.level;
+    var v = el('span', 'bv'); v.textContent = 'Ø ' + money(r.income_avg) + ' / Min.';
+    var tt = el('span', 'bt'); tt.textContent = fmt(r.total_earned) + ' € gesamt · ' + whoAgo(r.updated_at);
+    [a, n, lv, v, tt].forEach(function (x) { row.appendChild(x); });
+    l.appendChild(row);
+  });
+}
+function updateBoard() {
+  if (!boardUi) buildBoard();
+  var L = levelOf(state.totalEarned), a = levelBase(L), b = levelBase(L + 1);
+  setText(boardUi.lv, '⭐ Level ' + L);
+  setText(boardUi.nm, (typeof WICloud !== 'undefined' && WICloud.who().name) || 'Du');
+  setText(boardUi.avg, (state.eh || []).length < 2 ? 'wird gemessen …' : money(incomeAvg()));
+  boardUi.bar.style.width = Math.max(0, Math.min(100, (state.totalEarned - a) / (b - a) * 100)) + '%';
+  setText(boardUi.next, 'Noch ' + money(Math.max(0, b - state.totalEarned)) + ' bis Level ' + (L + 1) + ' · insgesamt verdient ' + money(state.totalEarned));
+  if (typeof WICloud === 'undefined' || !WICloud.who().uid) { boardAt = Date.now(); boardMsg('Die Bestenliste gibt es nur mit Konto. Melde dich oben im Menü an („Anmelden“), dann bist du dabei.'); return; }
+  if (boardBusy || Date.now() - boardAt < 60000) return;
+  boardBusy = true;
+  WICloud.loadBoard(boardSort).then(renderBoard, function (e) {
+    boardMsg(e && e.message === 'nobase' ? 'Die Bestenliste ist in der Datenbank noch nicht eingerichtet.' : 'Die Liste konnte gerade nicht geladen werden. Es wird später noch einmal versucht.');
+  }).then(function () { boardBusy = false; boardAt = Date.now(); });
+}
+
 function update() {
   setText($('#money'), money(state.money));
   var cut = Date.now() - 60000;
@@ -3026,6 +3144,7 @@ function update() {
   updateOrders(); updateEventBar();
   if (isUnlocked('tipExchange') !== tabsExchange) buildTabs();
   if (currentView === 'exchange') updateExchange();
+  if (currentView === 'board') updateBoard();
   if (isUnlocked('tipQuality') !== tabsQuality) buildTabs();
   if (currentView === 'quality') updateQuality();
 }
@@ -3161,12 +3280,12 @@ setInterval(function () {
 setInterval(save, 5000);
 document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
 window.addEventListener('pagehide', save);
-if (typeof WICloud !== 'undefined') WICloud.attach(function () { state.savedAt = Date.now(); return state; }, function () { noSave = true; });
+if (typeof WICloud !== 'undefined') WICloud.attach(function () { state.savedAt = Date.now(); return state; }, function () { noSave = true; }, myStats);
 
 window.__game = {
   makeOrder: makeOrder, deliverOrder: deliverOrder, declineOrder: declineOrder, tickOrders: tickOrders, orderCanDeliver: orderCanDeliver,
   startEvent: startEvent, tickEvents: tickEvents, eventMult: eventMult, eventShopMult: eventShopMult, marketFactor: marketFactor, updateOrders: updateOrders, updateEventBar: updateEventBar,
-  get state() { return state; }, DATA: DATA, step: step, startCycle: startCycle,
+  get state() { return state; }, DATA: DATA, step: step, advance: advance, levelOf: levelOf, levelBase: levelBase, incomeAvg: incomeAvg, myStats: myStats, startCycle: startCycle,
   removeStock: removeStock, addToStock: addToStock, stockAvgQual: stockAvgQual,
   buyBuilding: buyBuilding, buyManager: buyManager, buySeller: buySeller, fireSeller: fireSeller, fireRefund: fireRefund, sellQuote: sellQuote, sell: sell, price: price,
   capacity: capacity, buyStorage: buyStorage, storageCost: storageCost, isUnlocked: isUnlocked,
