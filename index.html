@@ -178,7 +178,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   <header id="topbar">
     <div class="brand">
       <h1>Wirtschaftsimperium</h1>
-      <div class="sub">Prototyp 1.1 · Stand 10.11. (Build C)</div>
+      <div class="sub">Prototyp 1.1 · Stand 10.11. (Build D)</div>
     </div>
     <div class="stats">
       <div class="stat"><span class="lbl">Geld</span><span class="val" id="money">0 €</span></div>
@@ -298,7 +298,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
 <div class="ov" id="wiLogin" hidden>
   <form class="ovcard" autocomplete="on">
     <h1>Wirtschaftsimperium</h1>
-    <div class="sub">Prototyp 1.1 · Stand 10.11. (Build C)</div>
+    <div class="sub">Prototyp 1.1 · Stand 10.11. (Build D)</div>
     <div class="seg"><button type="button" data-m="login" class="on">Anmelden</button><button type="button" data-m="reg">Neu registrieren</button></div>
     <label>Name<input type="text" id="wiName" autocomplete="username" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
     <label>Passwort<input type="password" id="wiPass" autocomplete="current-password" maxlength="64"></label>
@@ -328,6 +328,20 @@ var SAVE_KEY = 'wirtschaftsimperium_v1', K_SESS = 'wi_session', K_SYNC = 'wi_syn
 var DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 'Handy' : 'PC';
 var SAVE_EVERY = 15000;
 var TAB = Math.random().toString(36).slice(2, 10);      // Kennung dieser geöffneten Seite: erkennt eigene Speicherungen
+var BID = (function () { try { var b = localStorage.getItem('wi_bid'); if (!b) { b = Math.random().toString(36).slice(2, 12); localStorage.setItem('wi_bid', b); } return b; } catch (e) { return TAB; } })();   // Kennung dieses Browsers (über Neuladen hinweg)
+/* Lebenszeichen: jede offene Seite dieses Browsers trägt sich alle 3 s ein, so erkennt man gleichzeitig offene Tabs */
+function beat() { try { localStorage.setItem('wi_alive_' + TAB, String(Date.now())); } catch (e) {} }
+function unbeat() { try { localStorage.removeItem('wi_alive_' + TAB); } catch (e) {} }
+function siblingAlive() {
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('wi_alive_') === 0 && k !== 'wi_alive_' + TAB && Date.now() - (+localStorage.getItem(k) || 0) < 9000) return true;
+    }
+  } catch (e) {}
+  return false;
+}
+beat(); setInterval(beat, 3000); window.addEventListener('pagehide', unbeat);
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -422,7 +436,7 @@ function readLocal() {
 function hasProgress(l) { return !!(l && l.obj && (+l.obj.totalEarned || 0) > 0); }
 function buildRow(obj) {
   var d = {}; Object.keys(obj).forEach(function (k) { if (k !== 'hist') d[k] = obj[k]; });   // Preisverlauf muss nicht in die Cloud
-  d._tab = TAB;
+  d._tab = TAB; d._bid = BID;
   return { data: d, total_earned: +obj.totalEarned || 0, device: DEVICE, updated_at: new Date().toISOString() };
 }
 
@@ -549,6 +563,10 @@ function showConflict() {
         if (r.conflict) return askConflict(row);
         online = true; okTime = Date.now(); setStat(); publishBoard();
       });
+    }
+    // Stammt der Stand aus diesem Browser (z. B. von der Seite vor dem Neuladen), lebt dort keine andere Seite mehr und ist unser Stand nicht älter: kein echter Konflikt
+    if (row && row.data && row.data._bid === BID && !siblingAlive() && (+row.total_earned || 0) <= (+getSave().totalEarned || 0) + 1) {
+      return writeRow(getSave(), 'force').then(function () { online = true; okTime = Date.now(); setStat(); publishBoard(); }, function () { online = false; setStat('offline'); });
     }
     return askConflict(row);
   });
@@ -3271,7 +3289,7 @@ if (typeof WICloud === 'undefined') window.__wiStartGame(); else WICloud.boot(wi
 <script>
 /* Versions-Check: erkennt, wenn auf dem Server eine neuere Fassung liegt */
 (function () {
-  var BUILD = 'WI-BUILD-2026-11-10-C';
+  var BUILD = 'WI-BUILD-2026-11-10-D';
   var bar = document.getElementById('updBar');
   bar.addEventListener('click', function () {
     location.href = location.pathname + '?v=' + Date.now();
