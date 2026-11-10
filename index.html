@@ -26,7 +26,13 @@ h2{font-size:1rem;margin:0 0 10px;color:var(--mute);text-transform:uppercase;let
 .lbl{display:block;color:var(--mute);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
 .val{font-size:1.35rem;font-weight:650;font-variant-numeric:tabular-nums}
 .layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:18px;align-items:start}
-nav{position:sticky;top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 8px 8px}
+nav{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 8px 8px}
+.side{position:sticky;top:12px}
+#cloudStat{margin:0 0 8px;font-size:.82rem;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px}
+#cloudStat:empty{display:none}
+.menubtn,.seg2,.mob{display:none}
+.seg2 button{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:10px 6px;cursor:pointer}
+.seg2 button.on{background:var(--acc);color:var(--acc-ink);font-weight:600}
 .navgroup + .navgroup{border-top:1px solid var(--line);margin-top:6px}
 .navhead{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;color:var(--mute);font:inherit;
   font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;font-weight:650;padding:10px 6px 5px;cursor:pointer;text-align:left}
@@ -72,9 +78,28 @@ nav{position:sticky;top:12px;background:var(--card);border:1px solid var(--line)
 }
 @media (max-width:820px){
   .layout{grid-template-columns:1fr}
-  nav{position:static}
   .navitems{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:4px}
-  .navitem{width:auto;border:1px solid var(--line)}
+  .navitem{width:auto;border:1px solid var(--line);padding:10px 14px}
+  /* Handy: feste Leiste oben, Menü als Auswahl, Produktion und Markt getrennt */
+  .wrap{padding:0 10px 24px}
+  header{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -10px 10px;padding:8px 10px 8px;display:grid;gap:6px;justify-content:stretch;align-items:stretch;border-bottom:1px solid var(--line)}
+  .brand,.dsk{display:none}
+  .mob{display:inline}
+  .stats{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+  .stat{min-width:0;padding:5px 9px;border-radius:10px}
+  .lbl{font-size:.62rem;letter-spacing:.03em;white-space:nowrap}
+  .val{font-size:clamp(.85rem,4.3vw,1.1rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .menubtn{display:flex;width:100%;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;font:inherit;font-weight:600;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;cursor:pointer}
+  body.menu-open .menubtn{border-color:var(--acc)}
+  .side{position:fixed;left:0;right:0;top:var(--topH,110px);bottom:0;z-index:25;background:var(--bg);overflow:auto;padding:10px;display:none}
+  body.menu-open .side{display:block}
+  body.menu-open{overflow:hidden}
+  .seg2{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);margin:0 0 10px}
+  #mainCols[data-pane=prod]>section:nth-child(2){display:none}
+  #mainCols[data-pane=mkt]>section:nth-child(1){display:none}
+  .btn{min-height:40px}
+  .card{padding:10px 12px}
+  .banner{flex-wrap:wrap}
 }
 .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
 @media (max-width:820px){.cols{grid-template-columns:1fr}}
@@ -130,23 +155,22 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .seg button{flex:1;border:0;background:none;color:var(--ink);font:inherit;padding:8px;cursor:pointer}
 .seg button.on{background:var(--acc);color:var(--acc-ink)}
-#cloudStat{margin-top:4px}
 [hidden]{display:none !important}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div>
+  <header id="topbar">
+    <div class="brand">
       <h1>Wirtschaftsimperium</h1>
       <div class="sub">Prototyp 1.1 · Arbeitstitel</div>
-      <div class="sub" id="cloudStat"></div>
     </div>
     <div class="stats">
       <div class="stat"><span class="lbl">Geld</span><span class="val" id="money">0 €</span></div>
-      <div class="stat"><span class="lbl">Einnahmen / Min.</span><span class="val" id="income">0 €</span></div>
-      <div class="stat" id="rpStat" hidden><span class="lbl">Forschungspunkte</span><span class="val" id="rp">0</span></div>
+      <div class="stat"><span class="lbl"><span class="dsk">Einnahmen / Min.</span><span class="mob">Pro Minute</span></span><span class="val" id="income">0 €</span></div>
+      <div class="stat" id="rpStat" hidden><span class="lbl"><span class="dsk">Forschungspunkte</span><span class="mob">Forschung</span></span><span class="val" id="rp">0</span></div>
     </div>
+    <button class="menubtn" id="menuBtn" type="button" aria-expanded="false"><span id="menuLbl">☰ Menü</span><span id="menuArrow">▾</span></button>
   </header>
 
   <div class="banner" id="banner" hidden>
@@ -162,10 +186,14 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   <div class="evbar" id="evBar" hidden></div>
 
   <div class="layout">
-  <nav id="tabs"></nav>
+  <div class="side" id="side">
+    <div id="cloudStat"></div>
+    <nav id="tabs"></nav>
+  </div>
   <main class="content">
 
-  <div class="cols" id="mainCols">
+  <div class="seg2" id="mobSeg" hidden><button type="button" data-p="prod" class="on">⚙️ Produktion</button><button type="button" data-p="mkt">📦 Lager &amp; Markt</button></div>
+  <div class="cols" id="mainCols" data-pane="prod">
     <section>
       <h2>Produktion</h2>
       <div id="buildings"></div>
@@ -1876,6 +1904,15 @@ function advanceWithReport(dt) {
 var ui = { b: {}, g: {}, cards: {}, perks: {}, shops: {}, q: {}, c: {}, r: {}, sup: {} };
 
 var navCollapsed = {};          // eingeklappte Gruppen der Seitenleiste
+var menuLabel = '';             // Name der aktuellen Ansicht (steht im Menüknopf auf dem Handy)
+function closeMenu() { document.body.classList.remove('menu-open'); syncMenuBtn(); }
+function syncMenuBtn() {
+  var open = document.body.classList.contains('menu-open');
+  setText($('#menuLbl'), '☰  ' + (menuLabel || 'Menü'));
+  setText($('#menuArrow'), open ? '▴' : '▾');
+  $('#menuBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function setTopH() { var h = $('#topbar').offsetHeight; if (h) document.documentElement.style.setProperty('--topH', h + 'px'); }
 function navGroup(nav, id, icon, name) {
   var open = !navCollapsed[id];
   var g = el('div', 'navgroup');
@@ -1888,7 +1925,8 @@ function navGroup(nav, id, icon, name) {
 }
 function navItem(body, icon, label, active, onClick) {
   var t = el('button', 'navitem' + (active ? ' active' : ''), '<span class="ni">' + icon + '</span>' + label);
-  if (onClick) t.addEventListener('click', onClick); else t.disabled = true;
+  if (active) menuLabel = icon + ' ' + label;
+  if (onClick) t.addEventListener('click', function (ev) { closeMenu(); window.scrollTo(0, 0); onClick(ev); }); else t.disabled = true;
   body.appendChild(t);
   return t;
 }
@@ -1898,6 +1936,7 @@ function viewItem(body, icon, label, view) {
 function buildTabs() {
   var nav = $('#tabs');
   nav.innerHTML = '';
+  menuLabel = '';
   tabsIndustryKey = industryKey();
   DATA.groups.forEach(function (gr) {
     var ids = Object.keys(DATA.industries).filter(function (id) {
@@ -1931,6 +1970,7 @@ function buildTabs() {
   tabsBranches = isUnlocked('tipBranches');
   if (tabsBranches) viewItem(office, '＋', 'Neue Branche', 'branches');
   else navItem(office, '＋', 'Neue Branche (bald)', false, null);
+  syncMenuBtn(); setTopH();
 }
 function applyView() {
   $('#mainCols').hidden = currentView !== 'industry';
@@ -1941,6 +1981,7 @@ function applyView() {
   $('#contractsView').hidden = currentView !== 'contracts';
   $('#exchangeView').hidden = currentView !== 'exchange';
   $('#ordersView').hidden = currentView !== 'orders';
+  $('#mobSeg').hidden = currentView !== 'industry';
 }
 function applyIndustryFilter() {
   DATA.buildings.forEach(function (b) {
@@ -3009,6 +3050,15 @@ applyIndustryFilter();
 applyView();
 
 $('#bannerClose').addEventListener('click', function () { $('#banner').hidden = true; });
+$('#menuBtn').addEventListener('click', function () { document.body.classList.toggle('menu-open'); syncMenuBtn(); if (document.body.classList.contains('menu-open')) $('#side').scrollTop = 0; });
+Array.prototype.forEach.call(document.querySelectorAll('#mobSeg button'), function (b) {
+  b.addEventListener('click', function () {
+    $('#mainCols').setAttribute('data-pane', b.dataset.p);
+    Array.prototype.forEach.call(document.querySelectorAll('#mobSeg button'), function (x) { x.classList.toggle('on', x === b); });
+  });
+});
+window.addEventListener('resize', function () { setTopH(); if (window.innerWidth > 820) closeMenu(); });
+if (window.ResizeObserver) new ResizeObserver(setTopH).observe($('#topbar'));
 $('#noticeClose').addEventListener('click', function () { showNotice(); });
 
 var resetArmed = false, resetTimer = null;
