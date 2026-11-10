@@ -178,7 +178,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   <header id="topbar">
     <div class="brand">
       <h1>Wirtschaftsimperium</h1>
-      <div class="sub">Prototyp 1.1 · Arbeitstitel</div>
+      <div class="sub">Prototyp 1.1 · Stand 10.11. (Build B)</div>
     </div>
     <div class="stats">
       <div class="stat"><span class="lbl">Geld</span><span class="val" id="money">0 €</span></div>
@@ -282,31 +282,23 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   </main>
   </div>
 
-  <div class="card" id="xferPanel" hidden>
-    <strong>Spielstand auf ein anderes Gerät übertragen</strong>
-    <p class="small mute">Mit Konto brauchst du das nicht: Der Spielstand liegt in der Cloud, melde dich einfach auf dem anderen Gerät an. Das hier ist für Sicherungen und fürs Spielen ohne Konto (dann liegt der Stand nur in diesem Browser). Ein Import ersetzt den Stand im Konto. Zum Umziehen: hier <b>Exportieren</b>, den Text oder die Datei auf das andere Gerät bringen (E-Mail an dich selbst, Cloud, USB-Stick) und dort <b>Importieren</b>. Später gespielte Stände überschreiben ältere – spiel also immer auf einem Gerät zu Ende, bevor du wechselst.</p>
-    <textarea id="xferText" rows="4" style="width:100%;font:12px/1.3 monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px" placeholder="Hier steht nach „Exportieren“ dein Spielstand. Zum Laden: Text hier einfügen."></textarea>
-    <div class="row actions">
-      <button class="btn primary" id="xferExport">Exportieren (Text kopieren)</button>
-      <button class="btn" id="xferFile">Als Datei speichern</button>
-      <button class="btn" id="xferImport">Importieren (Text laden)</button>
-      <button class="btn" id="xferPick">Datei wählen …</button>
-      <input type="file" id="xferInput" accept=".txt,.json,text/plain,application/json" hidden>
-    </div>
-    <div class="small" id="xferMsg"></div>
-  </div>
-
   <footer>
-    <span>Der Spielstand wird automatisch gespeichert: mit Konto in der Cloud, ohne Konto nur in diesem Browser.</span>
-    <button class="btn" id="xferBtn">💾 Spielstand übertragen</button>
+    <span id="footTxt">Der Spielstand wird automatisch gespeichert: mit Konto in der Cloud, ohne Konto nur in diesem Browser.</span>
     <button class="btn" id="reset">Spielstand zurücksetzen</button>
+    <button class="btn" id="diagBtn" hidden>📋 Diagnose kopieren</button>
   </footer>
+  <div class="card" id="diagBox" hidden>
+    <strong>Diagnose</strong>
+    <p class="small mute">Dein Spielstand als Text, nur für die Balance-Analyse. Kopiere ihn und schicke ihn Claude.</p>
+    <textarea id="diagText" rows="4" readonly style="width:100%;font:12px/1.3 monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px"></textarea>
+    <div class="small" id="diagMsg"></div>
+  </div>
 </div>
 
 <div class="ov" id="wiLogin" hidden>
   <form class="ovcard" autocomplete="on">
     <h1>Wirtschaftsimperium</h1>
-    <div class="sub">Prototyp 1.1 · Arbeitstitel</div>
+    <div class="sub">Prototyp 1.1 · Stand 10.11. (Build B)</div>
     <div class="seg"><button type="button" data-m="login" class="on">Anmelden</button><button type="button" data-m="reg">Neu registrieren</button></div>
     <label>Name<input type="text" id="wiName" autocomplete="username" maxlength="20" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
     <label>Passwort<input type="password" id="wiPass" autocomplete="current-password" maxlength="64"></label>
@@ -335,6 +327,7 @@ var CFG = {
 var SAVE_KEY = 'wirtschaftsimperium_v1', K_SESS = 'wi_session', K_SYNC = 'wi_sync', K_GUEST = 'wi_guest', K_NAME = 'wi_lastname';
 var DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 'Handy' : 'PC';
 var SAVE_EVERY = 15000;
+var TAB = Math.random().toString(36).slice(2, 10);      // Kennung dieser geöffneten Seite: erkennt eigene Speicherungen
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -429,6 +422,7 @@ function readLocal() {
 function hasProgress(l) { return !!(l && l.obj && (+l.obj.totalEarned || 0) > 0); }
 function buildRow(obj) {
   var d = {}; Object.keys(obj).forEach(function (k) { if (k !== 'hist') d[k] = obj[k]; });   // Preisverlauf muss nicht in die Cloud
+  d._tab = TAB;
   return { data: d, total_earned: +obj.totalEarned || 0, device: DEVICE, updated_at: new Date().toISOString() };
 }
 
@@ -507,10 +501,11 @@ function writeRow(obj, mode, opts) {
 }
 
 /* ---------- Beim Spielen: regelmäßig speichern, Konflikte erkennen ---------- */
+var again = null;                  // während einer Speicherung eingetroffene Anforderung: danach noch einmal speichern
 function pushNow(opts) {
   var ka = !!(opts && opts.keepalive);
   if (!sess || !getSave || paused || guest) return Promise.resolve();
-  if (busy && !ka) return Promise.resolve();
+  if (busy) { again = again || opts || {}; if (ka) again = opts; return Promise.resolve(); }   // nie zwei Speicherungen gleichzeitig (sonst hält die zweite die erste für ein anderes Gerät)
   busy = true; if (!ka) setStat('saving');
   return writeRow(getSave(), 'cond', opts).then(function (res) {
     if (res.conflict) return showConflict();
@@ -518,7 +513,10 @@ function pushNow(opts) {
   }).catch(function (e) {
     if (e && e.message === 'auth') return;
     online = false; setStat('offline');
-  }).then(function () { busy = false; });
+  }).then(function () {
+    busy = false;
+    if (again) { var o = again; again = null; return pushNow(o); }
+  });
 }
 /* Bestenliste: eigenen Eintrag veröffentlichen und die Liste laden */
 function publishBoard() {
@@ -543,16 +541,27 @@ function loadBoard(order) {
 function cloudOnly() { return !!(sess && !guest); }
 function who() { return { uid: sess && !guest ? sess.uid : null, name: sess ? sess.name : '' }; }
 function showConflict() {
-  paused = true; setStat('paused');
   return ensureToken().then(fetchRow).catch(function () { return null; }).then(function (row) {
-    var info = row ? 'Auf dem Konto liegt ein Stand von <b>' + esc(row.device || 'einem anderen Gerät') + '</b> (' + ago(row.updated_at) + ', insgesamt verdient: ' + fmtMoney(row.total_earned) + '). '
-      : 'Auf dem Konto liegt ein anderer Stand. ';
-    return ask('Spielstand wurde woanders weitergespielt',
-      '<p class="small">' + info + 'Du kannst nur einen der beiden Stände behalten.</p>',
-      [{ k: 'cloud', label: 'Stand vom Konto laden', primary: true }, { k: 'mine', label: 'Diesen Stand behalten (überschreibt das Konto)' }]).then(function (k) {
-      if (k === 'cloud' && row) { haltFn && haltFn(); location.reload(); return; }
-      return writeRow(getSave(), 'force').then(function () { paused = false; online = true; okTime = Date.now(); setStat(); }, function () { paused = false; online = false; setStat('offline'); });
-    });
+    // Stammt der Stand auf dem Konto von dieser Seite selbst (z. B. zwei Speicherungen kurz hintereinander), ist es kein Konflikt
+    if (row && row.data && row.data._tab === TAB) {
+      setSync(row.updated_at);
+      return writeRow(getSave(), 'cond').then(function (r) {
+        if (r.conflict) return askConflict(row);
+        online = true; okTime = Date.now(); setStat(); publishBoard();
+      });
+    }
+    return askConflict(row);
+  });
+}
+function askConflict(row) {
+  paused = true; setStat('paused');
+  var info = row ? 'Auf dem Konto liegt ein Stand von <b>' + esc(row.device || 'einem anderen Gerät') + '</b> (' + ago(row.updated_at) + ', insgesamt verdient: ' + fmtMoney(row.total_earned) + '). '
+    : 'Auf dem Konto liegt ein anderer Stand. ';
+  return ask('Spielstand wurde woanders weitergespielt',
+    '<p class="small">' + info + 'Das passiert, wenn das Spiel noch auf einem anderen Gerät oder in einem anderen Tab offen ist. Du kannst nur einen der beiden Stände behalten.</p>',
+    [{ k: 'cloud', label: 'Stand vom Konto laden', primary: true }, { k: 'mine', label: 'Diesen Stand behalten (überschreibt das Konto)' }]).then(function (k) {
+    if (k === 'cloud' && row) { haltFn && haltFn(); location.reload(); return; }
+    return writeRow(getSave(), 'force').then(function () { paused = false; online = true; okTime = Date.now(); setStat(); }, function () { paused = false; online = false; setStat('offline'); });
   });
 }
 function adoptCloud(row) {
@@ -3191,73 +3200,31 @@ $('#reset').addEventListener('click', function () {
   });
 });
 
-/* Spielstand übertragen: Export als Text ("WI1:" + Base64 von JSON), Import mit Prüfung und Neustart */
-function xferMsg(t, bad) { var m = $('#xferMsg'); m.textContent = t; m.className = 'small ' + (bad ? 'down' : 'up'); }
-function exportText() {
-  save();
-  var json = JSON.stringify(state);
-  return 'WI1:' + btoa(unescape(encodeURIComponent(json)));
+/* Diagnose: Spielstand als Text kopieren (nur für den Entwickler sichtbar: Konto „sturmi“ oder 5× auf den Hinweistext tippen) */
+function diagVisible() {
+  var n = (typeof WICloud !== 'undefined' && WICloud.who().name || '').trim().toLowerCase();
+  return n === 'sturmi' || diagForce;
 }
-function parseExport(txt) {
-  txt = (txt || '').trim();
-  if (!txt) throw new Error('Kein Text eingefügt.');
-  var json = txt;
-  if (txt.indexOf('WI1:') === 0) json = decodeURIComponent(escape(atob(txt.slice(4).replace(/\s+/g, ''))));
-  var o = JSON.parse(json);
-  if (!o || typeof o !== 'object' || typeof o.money !== 'number' || !o.b) throw new Error('Das ist kein gültiger Spielstand.');
-  return json;
-}
-var importArmed = false, importTimer = null;
-function doImport(txt) {
-  var json;
-  try { json = parseExport(txt); } catch (e) { xferMsg('Import nicht möglich: ' + (e instanceof SyntaxError || e.name === 'InvalidCharacterError' || e.name === 'URIError' ? 'Das ist kein gültiger Spielstand.' : e.message), true); return; }
-  var btn = $('#xferImport');
-  if (!importArmed) {
-    importArmed = true; btn.textContent = 'Aktuellen Stand überschreiben? Nochmal klicken';
-    importTimer = setTimeout(function () { importArmed = false; btn.textContent = 'Importieren (Text laden)'; }, 5000);
-    return;
-  }
-  clearTimeout(importTimer);
-  noSave = true;
-  var viaCloud = typeof WICloud !== 'undefined' && WICloud.cloudOnly();
-  var cloudDone = viaCloud ? WICloud.pushForce(JSON.parse(json)) : Promise.resolve(true);
-  cloudDone.then(function (ok) {
-    if (!ok) { noSave = false; xferMsg('Import nicht möglich: Der Cloud-Speicher ist gerade nicht erreichbar.', true); return; }
-    if (!viaCloud) { try { localStorage.setItem(SAVE_KEY, json); } catch (e) { noSave = false; xferMsg('Speichern im Browser nicht möglich.', true); return; } }
-    location.reload();
-  });
-}
-$('#xferBtn').addEventListener('click', function () { var p = $('#xferPanel'); p.hidden = !p.hidden; });
-$('#xferExport').addEventListener('click', function () {
-  var t = exportText(), ta = $('#xferText');
-  ta.value = t; ta.select();
-  var done = function () { xferMsg('Spielstand exportiert und in die Zwischenablage kopiert.', false); };
+var diagForce = false, diagTaps = 0, diagTapT = 0;
+function syncDiag() { $('#diagBtn').hidden = !diagVisible(); if ($('#diagBtn').hidden) $('#diagBox').hidden = true; }
+$('#footTxt').addEventListener('click', function () {
+  var now = Date.now(); diagTaps = now - diagTapT < 1500 ? diagTaps + 1 : 1; diagTapT = now;
+  if (diagTaps >= 5) { diagTaps = 0; diagForce = !diagForce; syncDiag(); }
+});
+$('#diagBtn').addEventListener('click', function () {
+  var o = {}; Object.keys(state).forEach(function (k) { if (k !== 'hist') o[k] = state[k]; });
+  o.savedAt = Date.now();
+  var text = 'WI1:' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  var box = $('#diagBox'), ta = $('#diagText'), msg = $('#diagMsg');
+  box.hidden = false; ta.value = text;
+  var done = function () { msg.textContent = 'Kopiert (' + nf0.format(text.length) + ' Zeichen). Jetzt bei Claude einfügen.'; msg.className = 'small up'; };
   var fallback = function () {
-    try { ta.select(); document.execCommand('copy'); done(); }
-    catch (e) { xferMsg('Exportiert. Bitte den markierten Text selbst kopieren (Strg+C).', false); }
+    try { ta.focus(); ta.select(); if (document.execCommand('copy')) { done(); return; } } catch (e) {}
+    msg.textContent = 'Bitte den markierten Text selbst kopieren (lange tippen, „Alles auswählen“, „Kopieren“).'; msg.className = 'small';
   };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback); else fallback();
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
 });
-$('#xferFile').addEventListener('click', function () {
-  var t = exportText();
-  $('#xferText').value = t;
-  try {
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
-    a.download = 'wirtschaftsimperium-spielstand.txt';
-    document.body.appendChild(a); a.click(); a.remove();
-    xferMsg('Datei „wirtschaftsimperium-spielstand.txt“ gespeichert.', false);
-  } catch (e) { xferMsg('Dateispeichern nicht möglich – nutze „Exportieren“ und kopiere den Text.', true); }
-});
-$('#xferImport').addEventListener('click', function () { doImport($('#xferText').value); });
-$('#xferPick').addEventListener('click', function () { $('#xferInput').click(); });
-$('#xferInput').addEventListener('change', function (ev) {
-  var f = ev.target.files && ev.target.files[0];
-  if (!f) return;
-  var r = new FileReader();
-  r.onload = function () { $('#xferText').value = String(r.result); xferMsg('Datei gelesen. Jetzt „Importieren“ klicken.', false); };
-  r.readAsText(f);
-});
+syncDiag();
 
 var last = Date.now();
 advanceWithReport((last - (state.savedAt || last)) / 1000);
