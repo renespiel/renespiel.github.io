@@ -284,7 +284,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
 
   <div class="card" id="xferPanel" hidden>
     <strong>Spielstand auf ein anderes Gerät übertragen</strong>
-    <p class="small mute">Mit Konto brauchst du das nicht: einfach auf dem anderen Gerät anmelden. Das hier ist für Sicherungen und fürs Spielen ohne Konto. Der Spielstand liegt dann nur in diesem Browser. Zum Umziehen: hier <b>Exportieren</b>, den Text oder die Datei auf das andere Gerät bringen (E-Mail an dich selbst, Cloud, USB-Stick) und dort <b>Importieren</b>. Später gespielte Stände überschreiben ältere – spiel also immer auf einem Gerät zu Ende, bevor du wechselst.</p>
+    <p class="small mute">Mit Konto brauchst du das nicht: Der Spielstand liegt in der Cloud, melde dich einfach auf dem anderen Gerät an. Das hier ist für Sicherungen und fürs Spielen ohne Konto (dann liegt der Stand nur in diesem Browser). Ein Import ersetzt den Stand im Konto. Zum Umziehen: hier <b>Exportieren</b>, den Text oder die Datei auf das andere Gerät bringen (E-Mail an dich selbst, Cloud, USB-Stick) und dort <b>Importieren</b>. Später gespielte Stände überschreiben ältere – spiel also immer auf einem Gerät zu Ende, bevor du wechselst.</p>
     <textarea id="xferText" rows="4" style="width:100%;font:12px/1.3 monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px" placeholder="Hier steht nach „Exportieren“ dein Spielstand. Zum Laden: Text hier einfügen."></textarea>
     <div class="row actions">
       <button class="btn primary" id="xferExport">Exportieren (Text kopieren)</button>
@@ -297,7 +297,7 @@ footer{margin-top:18px;color:var(--mute);font-size:.82rem;display:flex;gap:12px;
   </div>
 
   <footer>
-    <span>Der Spielstand wird automatisch gespeichert (im Browser und, mit Konto, in der Cloud).</span>
+    <span>Der Spielstand wird automatisch gespeichert: mit Konto in der Cloud, ohne Konto nur in diesem Browser.</span>
     <button class="btn" id="xferBtn">💾 Spielstand übertragen</button>
     <button class="btn" id="reset">Spielstand zurücksetzen</button>
   </footer>
@@ -334,7 +334,7 @@ var CFG = {
 };
 var SAVE_KEY = 'wirtschaftsimperium_v1', K_SESS = 'wi_session', K_SYNC = 'wi_sync', K_GUEST = 'wi_guest', K_NAME = 'wi_lastname';
 var DEVICE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '') ? 'Handy' : 'PC';
-var SAVE_EVERY = 30000;
+var SAVE_EVERY = 15000;
 
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -540,6 +540,7 @@ function loadBoard(order) {
     var e = new Error(r.status === 404 || /42P01|PGRST205|does not exist|schema cache/.test(code) ? 'nobase' : 'http'); throw e;
   });
 }
+function cloudOnly() { return !!(sess && !guest); }
 function who() { return { uid: sess && !guest ? sess.uid : null, name: sess ? sess.name : '' }; }
 function showConflict() {
   paused = true; setStat('paused');
@@ -549,7 +550,7 @@ function showConflict() {
     return ask('Spielstand wurde woanders weitergespielt',
       '<p class="small">' + info + 'Du kannst nur einen der beiden Stände behalten.</p>',
       [{ k: 'cloud', label: 'Stand vom Konto laden', primary: true }, { k: 'mine', label: 'Diesen Stand behalten (überschreibt das Konto)' }]).then(function (k) {
-      if (k === 'cloud' && row) { haltFn && haltFn(); adoptCloud(row); location.reload(); return; }
+      if (k === 'cloud' && row) { haltFn && haltFn(); location.reload(); return; }
       return writeRow(getSave(), 'force').then(function () { paused = false; online = true; okTime = Date.now(); setStat(); }, function () { paused = false; online = false; setStat('offline'); });
     });
   });
@@ -561,6 +562,7 @@ function adoptCloud(row) {
 
 /* ---------- Schnittstelle zum Spiel ---------- */
 function attach(getter, halt, stats) {
+  if (sess && !guest) lsDel(SAVE_KEY);       // Spiel ist geladen: mit Konto bleibt keine Kopie im Browser
   getSave = getter; haltFn = function () { paused = true; halt(); }; getStats = stats || null; started = true;
   if (guest || !sess) { setStat(); return; }
   setStat();
@@ -588,41 +590,31 @@ function authLost() {
 
 /* ---------- Start: Anmeldung und Abgleich ---------- */
 function syncAndStart() {
-  var tok, row;
-  return ensureToken().then(function (t) { tok = t; return fetchRow(t); }).then(function (r) { row = r; return decide(row); }).catch(function (e) {
+  return ensureToken().then(fetchRow).then(decide).catch(function (e) {
     if (e && e.message === 'auth') return;
-    lastTs = (readSync() && readSync().uid === sess.uid) ? readSync().ts : null;      // Server nicht erreichbar: lokal weiterspielen, später abgleichen
-    if (readLocal()) { online = false; go(); setStat('offline'); return; }
-    showLogin('Keine Verbindung zum Server. Bitte Internet prüfen und es noch einmal versuchen.');
+    // Mit Konto liegt der Spielstand nur in der Cloud: ohne Verbindung kann nicht gestartet werden
+    ask('Keine Verbindung', '<p class="small">Der Spielstand liegt in der Cloud und kann gerade nicht geladen werden. Bitte prüfe dein Internet.</p>',
+      [{ k: 'retry', label: 'Erneut versuchen', primary: true }]).then(syncAndStart);
   });
 }
 function go() { overlay(false); setStat(); if (!started) startFn(); }
+/* Mit Konto zählt nur die Cloud. Ein lokaler Stand (aus der Zeit ohne Konto) wird nur einmal übernommen. */
 function decide(row) {
-  var local = readLocal(), sy = readSync(), mine = sy && sy.uid === sess.uid, prog = hasProgress(local);
-  var forceLocal = function () { return writeRow(local.obj, 'force').then(go); };
-  var useCloud = function () { adoptCloud(row); go(); };
+  var local = readLocal(), prog = hasProgress(local);
+  var takeLocal = function () { return writeRow(local.obj, 'force').then(go); };       // das Spiel lädt den Stand noch aus dem Browser, danach wird die Kopie entfernt
+  var takeCloud = function () { adoptCloud(row); go(); };
   if (!row) {
-    if (!prog) { lastTs = null; return go(); }
-    if (sy && sy.uid && !mine) {
-      return ask('Anderer Spielstand auf diesem Gerät', '<p class="small">Hier läuft noch ein Spielstand von einem anderen Konto (insgesamt verdient: ' + fmtMoney(local.obj.totalEarned) + '). Dein Konto ist neu und hat noch keinen Stand.</p>',
-        [{ k: 'take', label: 'Diesen Stand in mein Konto übernehmen', primary: true }, { k: 'new', label: 'Neu beginnen' }]).then(function (k) {
-        if (k === 'take') return forceLocal();
-        lsDel(SAVE_KEY); lastTs = null; go();
-      });
-    }
-    return forceLocal();                         // bisheriger Stand dieses Geräts wandert ins neue Konto
+    if (!prog) { lastTs = null; return go(); }          // neues Konto, nichts vorhanden: frisch starten
+    return takeLocal();                                  // bisheriger Stand dieses Geräts wandert ins neue Konto
   }
-  if (!prog) return useCloud();
-  if (mine && Date.parse(sy.ts) === Date.parse(row.updated_at)) { lastTs = row.updated_at; return go(); }
-  if (mine && !(+local.obj.totalEarned > +row.total_earned)) return useCloud();
-  var cloudBetter = +row.total_earned >= +local.obj.totalEarned;
+  if (!prog || !(+local.obj.totalEarned > +row.total_earned)) return takeCloud();   // Normalfall: Konto gewinnt
+  // Ausnahme: auf diesem Gerät liegt ein weiter fortgeschrittener Stand (z. B. vorher ohne Konto gespielt)
   return ask('Welchen Spielstand möchtest du?',
-    '<p class="small">Es gibt zwei verschiedene Stände. Der andere wird danach überschrieben.</p>' +
+    '<p class="small">Auf diesem Gerät liegt ein Stand, der weiter ist als der im Konto. Der andere wird danach überschrieben.</p>' +
     '<p class="small"><b>Konto</b> (' + esc(row.device || 'anderes Gerät') + ', ' + ago(row.updated_at) + '): insgesamt verdient ' + fmtMoney(row.total_earned) + '<br>' +
     '<b>Dieses Gerät:</b> insgesamt verdient ' + fmtMoney(local.obj.totalEarned) + '</p>',
-    [{ k: 'cloud', label: 'Stand vom Konto laden', primary: cloudBetter }, { k: 'local', label: 'Stand dieses Geräts nehmen', primary: !cloudBetter }]).then(function (k) {
-    if (k === 'cloud') return useCloud();
-    return forceLocal();
+    [{ k: 'local', label: 'Stand dieses Geräts nehmen', primary: true }, { k: 'cloud', label: 'Stand vom Konto laden' }]).then(function (k) {
+    return k === 'local' ? takeLocal() : takeCloud();
   });
 }
 
@@ -678,7 +670,7 @@ function boot(start) {
   syncAndStart();
 }
 
-return { boot: boot, attach: attach, pushForce: pushForce, loadBoard: loadBoard, who: who, _t: { norm: norm, emailOf: emailOf, passOf: passOf } };
+return { boot: boot, attach: attach, pushForce: pushForce, loadBoard: loadBoard, who: who, cloudOnly: cloudOnly, _t: { norm: norm, emailOf: emailOf, passOf: passOf } };
 })();
 </script>
 
@@ -1200,6 +1192,7 @@ function load() {
 var noSave = false;
 function save() {
   if (noSave) return;
+  if (typeof WICloud !== 'undefined' && WICloud.cloudOnly()) return;      // mit Konto: nur Cloud
   try {
     state.savedAt = Date.now();
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
@@ -3226,10 +3219,11 @@ function doImport(txt) {
   }
   clearTimeout(importTimer);
   noSave = true;
-  var cloudDone = (typeof WICloud !== 'undefined') ? WICloud.pushForce(JSON.parse(json)) : Promise.resolve(true);
+  var viaCloud = typeof WICloud !== 'undefined' && WICloud.cloudOnly();
+  var cloudDone = viaCloud ? WICloud.pushForce(JSON.parse(json)) : Promise.resolve(true);
   cloudDone.then(function (ok) {
     if (!ok) { noSave = false; xferMsg('Import nicht möglich: Der Cloud-Speicher ist gerade nicht erreichbar.', true); return; }
-    try { localStorage.setItem(SAVE_KEY, json); } catch (e) { noSave = false; xferMsg('Speichern im Browser nicht möglich.', true); return; }
+    if (!viaCloud) { try { localStorage.setItem(SAVE_KEY, json); } catch (e) { noSave = false; xferMsg('Speichern im Browser nicht möglich.', true); return; } }
     location.reload();
   });
 }
